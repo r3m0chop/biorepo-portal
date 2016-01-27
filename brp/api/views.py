@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.models import User, Group
+from ehb_client.requests.exceptions import PageNotFound
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -61,13 +62,38 @@ class ProtocolViewSet(viewsets.ModelViewSet):
 
         return Response(protocols)
 
+    def getExternalRecords(self, pds, subject):
+        er_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD)
+        er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
+        lbls = er_label_rh.query()
+        try:
+            pds_records = er_rh.get(
+                external_system_url=pds.data_source.url, path=pds.path, subject_id=subject['id'])
+        except PageNotFound:
+            pds_records = []
+
+        r = []
+        for ex_rec in pds_records:
+            # Convert ehb-client object to JSON and then parse as py dict
+            e = json.loads(ex_rec.json_from_identity(ex_rec))
+            # Map label descriptions from the eHB to External Records
+            for label in lbls:
+                if e['label'] == label['id']:
+                    if label['label'] == '':
+                        e['label_desc'] = 'Record'
+                    else:
+                        e['label_desc'] = label['label']
+            e['pds'] = pds.id
+            r.append(e)
+
+        return r
+
     @list_route()
     def subjects(self, request, *args, **kwargs):
         """
         Returns a list of subjects associated with a protocol.
         """
         p = self.get_object()
-
         if p.isUserAuthorized(request.user):
             subjects = p.getSubjects()
             organizations = p.organizations.all()
@@ -80,7 +106,36 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             # append the name here for display downstream.
             for o in organizations:
                 ehb_orgs.append(o.getEhbServiceInstance())
+            # Check if the protocol has external IDs configured. If so retrieve them
+            manageExternalIDs = False
+
+            protocoldatasources = p.getProtocolDataSources()
+
+            for pds in protocoldatasources:
+                if pds.driver == 3:
+                    ExIdSource = pds
+                    manageExternalIDs = True
+
+            if manageExternalIDs:
+                try:
+                    config = json.loads(ExIdSource.driver_configuration)
+                    if 'sort_on' in config.keys():
+                        er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
+                        lbl = er_label_rh.get(id=config['sort_on'])
+                        addl_id_column = lbl
+                except:
+                    pass
+
             for sub in subs:
+                sub['external_records'] = []
+                for pds in protocoldatasources:
+                    sub['external_records'].extend(self.getExternalRecords(pds, sub))
+                if manageExternalIDs:
+                    # Break out external ids into a separate object for ease of use
+                    sub['external_ids'] = []
+                    for record in sub['external_records']:
+                        if record['external_system'] == 3:
+                            sub['external_ids'].append(record)
                 for ehb_org in ehb_orgs:
                     if sub['organization_id'] == ehb_org.id:
                         sub['organization_name'] = ehb_org.name
