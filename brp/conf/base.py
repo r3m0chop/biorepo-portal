@@ -109,7 +109,7 @@ STATICFILES_DIRS = ()
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
-LOGIN_REDIRECT_URL = '/welcome/'
+LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'brp.conf.urls'
 
