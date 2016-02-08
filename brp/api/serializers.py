@@ -35,17 +35,20 @@ class DataSourceSerializer(serializers.HyperlinkedModelSerializer):
 class ProtocolSerializer(serializers.HyperlinkedModelSerializer):
     protocol_data_sources = serializers.HyperlinkedIdentityField(view_name='protocol-datasources-list')
     subjects = serializers.HyperlinkedIdentityField(view_name='protocol-subject-list')
+    organizations = serializers.HyperlinkedIdentityField(view_name='protocol-organization-list')
 
     class Meta:
         model = Protocol
-        fields = ('id', 'name', 'users', 'organizations', 'data_sources', 'protocol_data_sources', 'subjects')
+        fields = ('id', 'name', 'users', 'data_sources', 'protocol_data_sources', 'subjects', 'organizations')
 
 
 class ProtocolDataSourceSerializer(serializers.HyperlinkedModelSerializer):
+    subjects = serializers.HyperlinkedIdentityField(view_name='pds-subject-list')
+
     class Meta:
         model = ProtocolDataSource
         fields = ('id', 'protocol', 'data_source', 'path', 'driver', 'driver_configuration',
-                  'display_label', 'max_records_per_subject')
+                  'display_label', 'max_records_per_subject', 'subjects')
 
 
 class ProtocolDataSourceLinkSerializer(serializers.HyperlinkedModelSerializer):

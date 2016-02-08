@@ -1,9 +1,9 @@
 import json
-
+from datetime import datetime
 from django.contrib.auth.models import User, Group
 from ehb_client.requests.exceptions import PageNotFound
 from rest_framework import viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from api.serializers import UserSerializer, GroupSerializer, OrganizationSerializer,\
     DataSourceSerializer, ProtocolSerializer, ProtocolDataSourceSerializer,\
@@ -12,6 +12,8 @@ from api.serializers import UserSerializer, GroupSerializer, OrganizationSeriali
 from portal.models.protocols import Organization, Protocol, DataSource, ProtocolDataSource,\
     ProtocolUserCredentials
 from portal.ehb_service_client import ServiceClient
+
+from copy import deepcopy
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -87,6 +89,53 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             r.append(e)
 
         return r
+
+    @detail_route(methods=['post'])
+    def add_subject(self, request, *args, **kwargs):
+        """
+        Not yet implemented
+        """
+        return Response(
+            "",
+            headers={'Access-Control-Allow-Origin': '*'},
+            status=501
+        )
+
+    @detail_route(methods=['put'])
+    def update_subject(self, request, *args, **kwargs):
+        subject = json.loads(request.body)
+        # See if subject exists
+        s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+        try:
+            ehb_sub = s_rh.get(id=subject['id'])
+        except:
+            return Response("", status=404)
+        ehb_sub.old_subject = deepcopy(ehb_sub)
+        ehb_sub.first_name = subject['first_name']
+        ehb_sub.last_name = subject['last_name']
+        ehb_sub.organization_subject_id = subject['organization_subject_id']
+        ehb_sub.dob = datetime.strptime(subject['dob'], '%Y-%m-%d')
+        update = s_rh.update(ehb_sub)[0]
+        if update['errors']:
+            return Response(json.dumps({'error': 'Unable to update subject'}), status=400)
+        return Response(
+            [],
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
+
+    @list_route()
+    def organizations(self, request, *args, **kwargs):
+        """
+        Provide a list of organizations associated with a protocol
+        """
+        p = self.get_object()
+        if p.isUserAuthorized(request.user):
+            q = p.organizations.all()
+            orgs = [OrganizationSerializer(org).data for org in q]
+        return Response(
+            orgs,
+            headers={'Access-Control-Allow-Origin': '*'}
+        )
 
     @list_route()
     def subjects(self, request, *args, **kwargs):
