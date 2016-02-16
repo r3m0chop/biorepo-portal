@@ -9,3 +9,5 @@ _site/
 .project_config.json
 *.env
 rc_driver
+*.db
+node_modules

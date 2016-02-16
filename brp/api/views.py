@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from django.contrib.auth.models import User, Group
 from ehb_client.requests.exceptions import PageNotFound
+from ehb_client.requests.subject_request_handler import Subject
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from api.serializers import UserSerializer, GroupSerializer, OrganizationSeriali
 from portal.models.protocols import Organization, Protocol, DataSource, ProtocolDataSource,\
     ProtocolUserCredentials
 from portal.ehb_service_client import ServiceClient
+from portal.utilities import SubjectUtils
 
 from copy import deepcopy
 
@@ -93,12 +95,71 @@ class ProtocolViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def add_subject(self, request, *args, **kwargs):
         """
-        Not yet implemented
+        Add a subject to the protocol
+
+        Expects a request body of the form:
+        {
+            "first_name": "John",
+            "last_name": "Doe",
+            "organization_subject_id": "123123123",
+            "organization": "1",
+            "dob": "2000-01-01"
+        }
         """
+        protocol = self.get_object()
+        subject = json.loads(request.body)
+
+        new_subject = Subject(
+            first_name=subject['first_name'],
+            last_name=subject['last_name'],
+            organization_id=int(subject['organization']),
+            organization_subject_id=subject['organization_subject_id'],
+            dob=datetime.strptime(subject['dob'], '%Y-%m-%d')
+        )
+        srh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+
+        errors = []
+        try:
+            subject = srh.get(
+                organization_id=new_subject.organization_id,
+                organization_subject_id=new_subject.organization_subject_id)
+            success = True
+            # If found this indicates the subject is already in the ehb for
+            # this organization, but not necessarily for this protocol.
+            # That will be checked below in the external record search
+        except PageNotFound:
+            # Subject is not in the system so create it
+            r = srh.create(new_subject)[0]
+            success = r.get('success')
+            errors = r.get('errors')
+            subject = r.get(Subject.identityLabel)
+
+        # Dont proceed if creation was not a success
+        if not success:
+            return Response(json.dumps([success, errors, subject]))
+
+        # First check if the subject is already in the group.
+        if protocol.getSubjects() and subject in protocol.getSubjects():
+            # Subject is already in protocol
+            success = False
+        else:
+            # Add this subject to the protocol and create external record group
+            if SubjectUtils.create_protocol_subject_record_group(protocol, new_subject):
+                if protocol.addSubject(subject):
+                    success = True
+                else:
+                    # Could not add subject to project
+                    success = False
+            else:
+                # For some reason we couldn't get the eHB to add the subject to the protocol group
+                success = False
+
+        subject = json.loads(Subject.json_from_identity(subject))
+
         return Response(
-            "",
+            [success, subject, errors],
             headers={'Access-Control-Allow-Origin': '*'},
-            status=501
+            status=200
         )
 
     @detail_route(methods=['put'])
@@ -114,6 +175,7 @@ class ProtocolViewSet(viewsets.ModelViewSet):
         ehb_sub.first_name = subject['first_name']
         ehb_sub.last_name = subject['last_name']
         ehb_sub.organization_subject_id = subject['organization_subject_id']
+        ehb_sub.organization_id = subject['organization_id']
         ehb_sub.dob = datetime.strptime(subject['dob'], '%Y-%m-%d')
         update = s_rh.update(ehb_sub)[0]
         if update['errors']:
@@ -221,6 +283,23 @@ class ProtocolViewSet(viewsets.ModelViewSet):
                 dc = json.loads(pds.driver_configuration)
             else:
                 dc = ''
+            # If labels are defined get label names from eHB.
+            # (label_id, label_description)
+            if 'labels' in dc.keys():
+                er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
+                lbls = er_label_rh.query()
+                nl = []
+                for l in dc['labels']:
+                    for label in lbls:
+                        if l == label['id']:
+                            if label['label'] == '':
+                                nl.append((label['id'], 'Record'))
+                            else:
+                                nl.append((label['id'], label['label']))
+                dc['labels'] = nl
+            else:
+                dc['labels'] = [(1, 'Record')]
+
             t["driver_configuration"] = dc
             # Determine Authorization
             try:

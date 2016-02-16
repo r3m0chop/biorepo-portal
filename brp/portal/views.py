@@ -14,6 +14,9 @@ from portal.ehb_service_client import ServiceClient
 from portal.models.protocols import Protocol, ProtocolDataSource,\
     Organization, ProtocolUserCredentials, ProtocolDataSourceLink
 from portal.utilities import SubjectUtils, DriverUtils
+from django.db import IntegrityError
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 from ehb_client.requests.exceptions import ErrorConstants, PageNotFound
 from ehb_client.requests.base import RequestBase
@@ -41,18 +44,27 @@ def connectionRefused(func):
             return HttpResponse('The system was unable to connect to either the eHB service or another datasource.')
     return callfunc
 
-
+@login_required
 def welcome(request):
     protocols = []
     # find the protocols for this user
     usr = request.user
+    token = ''
     for p in Protocol.objects.all():
         if request.user in p.users.all():
             protocols.append(p)
+
+    if isinstance(usr, User):
+        try:
+            token = Token.objects.create(user=usr)
+        except IntegrityError:
+            token = Token.objects.get(user=usr)
+
     return render_to_response(
         'welcome.html',
         {
             'user': usr,
+            'token': token,
             'protocols': protocols,
             'root_path': ServiceClient.self_root_path,
             'redcap_status': getRedcapStatus()

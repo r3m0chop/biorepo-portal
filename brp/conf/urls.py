@@ -12,7 +12,7 @@ add_to_builtins('portal.formutils')
 urlpatterns = patterns(
     '',
     # simple redirect to canonical login URL
-    url(r'^$', RedirectView.as_view(url=settings.LOGIN_URL, permanent=True)),
+    # url(r'^$', RedirectView.as_view(url=settings.LOGIN_URL, permanent=True)),
 
     # admin urls
     url(r'^admin/', include(admin.site.urls)),

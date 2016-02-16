@@ -19,6 +19,6 @@ dataentry_patterns = patterns(
 
 urlpatterns = patterns(
     '',
-    url(r'^welcome', 'portal.views.welcome', name='welcome'),
+    url(r'^$', 'portal.views.welcome', name='welcome'),
     url(r'^dataentry/', include(dataentry_patterns, namespace='dataentry'))
 )

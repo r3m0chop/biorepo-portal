@@ -1,23 +1,14 @@
 {% extends "base.html" %}
 
 {% block head_content %}
-<title>Biorepository Project List</title>
+<title>Biorepository Portal</title>
 {% endblock %}
 
 {% block topbar_block %}
-<p class="navbar-text">Project List</p>
+<p class="navbar-text">Biorepository Portal</p>
 {% endblock %}
 
 {% block main_content %}
 
-{% if request.user.is_authenticated %}
-<p>Welcome back <b>{{user.first_name}} {{user.last_name}}</b></p>
-<p><i>Select project for data entry:</i></p>
-{% for p in protocols %}
-	<a class="project-row-link" href="{{root_path}}/dataentry/protocol/{{p.id}}/"><div class="project-row">{{p.name}}</div></a>
-{% endfor %}
-{% else %}
-<div class="alert alert-warning">Your session has expired. Please feel free to <a href="{{root_path}}/login">login</a> again</div>
-{% endif %}
 
 {% endblock %}
