@@ -45,6 +45,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
+                <Navbar/>
                 <NotificationSystem ref="notificationSystem"/>
                 {this.props.children}
             </div>
