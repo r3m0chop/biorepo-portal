@@ -9,21 +9,15 @@ import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router'
 import { render } from 'react-dom';
 import configureStore from './store/configureStore';
 
-const initialState = {
-    "protocols": [],
-    "subjects": [],
-    "session": {},
-    "dataSources" : []
-}
-
 const store = configureStore(window.__INITIAL_STATE__)
 
 // Very manually constraining this to the root path until we establish proper
 // routing and views. This allows us to bounce out of the single page app paradigm
+// and into existing ehb-datasource url paths
 if (window.location.pathname == "/") {
     render(
         <Provider store={store}>
-            <Router>
+            <Router history={browserHistory}>
                 <Route path="/" component={App}>
                     <IndexRoute component={ProjectMenu} />
                     <Route path="dataentry/protocol/:id" component={SubjectMenu}/>
