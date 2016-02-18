@@ -191,10 +191,16 @@ a {
     width: 114px;
 }
 .new-subject-form {
-    width: 50%;
     left: 50%;
     margin-left: -15em;
     margin-bottom: 3em;
+    position: fixed;
+    z-index:1000;
+}
+.new-subject-form>.card{
+    padding: 15px;
+    box-shadow: 3px 3px 14px rgba(204, 197, 185, 0.5);
+
 }
 .new-subject-button {
     width: 100%;
