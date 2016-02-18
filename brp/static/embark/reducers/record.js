@@ -5,31 +5,32 @@ const initialState = {
   items: [],
   activeRecord: null,
   editLabelMode: false,
-  selectedLabel: null
+  selectedLabel: null,
 };
 
 function record(state = initialState, action) {
   switch (action.type){
     case SET_ACTIVE_RECORD:
       return Object.assign({}, state, {
-          activeRecord: action.activeRecord
+        activeRecord: action.activeRecord,
       });
     case SET_EDIT_LABEL_MODE:
-        if (action.mode != null){
-            return Object.assign({}, state, {
-                editLabelMode: action.mode
-            })
-        } else {
-            return Object.assign({}, state, {
-                editLabelMode: !state.editLabelMode
-            })
-        }
-    case SET_SELECTED_LABEL:
+      if (action.mode != null) {
         return Object.assign({}, state, {
-            selectedLabel: action.selectedLabel
-        })
+          editLabelMode: action.mode,
+        });
+      } else {
+        return Object.assign({}, state, {
+          editLabelMode: !state.editLabelMode,
+        });
+      }
+
+    case SET_SELECTED_LABEL:
+      return Object.assign({}, state, {
+        selectedLabel: action.selectedLabel,
+      });
     default:
-      return state
+      return state;
   }
 }
 

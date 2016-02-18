@@ -6,7 +6,7 @@ const initialState = {
   items: [],
   activeProtocol: null,
   orgs: [],
-  addSubjectMode: false
+  addSubjectMode: false,
 };
 
 function protocol(state = initialState, action) {
@@ -23,28 +23,29 @@ function protocol(state = initialState, action) {
       });
     case SET_ACTIVE_PROTOCOL:
       return Object.assign({}, state, {
-          activeProtocol: action.protocol
+        activeProtocol: action.protocol,
       });
     case REQUEST_PROTOCOL_ORGS:
       return Object.assign({}, state, {
-          isFetching: true
+        isFetching: true,
       });
     case RECEIVE_PROTOCOL_ORGS:
       return Object.assign({}, state, {
-          orgs: action.organizations
+        orgs: action.organizations,
       });
     case SET_ADD_SUBJECT_MODE:
-        if (action.mode != null){
-            return Object.assign({}, state, {
-              addSubjectMode: action.mode
-            })
-        } else {
-            return Object.assign({}, state, {
-              addSubjectMode: !state.addSubjectMode
-            })
-        }
+      if (action.mode != null) {
+        return Object.assign({}, state, {
+          addSubjectMode: action.mode,
+        });
+      } else {
+        return Object.assign({}, state, {
+          addSubjectMode: !state.addSubjectMode,
+        });
+      }
+
     default:
-      return state
+      return state;
   }
 }
 

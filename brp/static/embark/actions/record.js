@@ -5,30 +5,29 @@ export const RECEIVE_LABELS = 'RECEIVE_LABELS';
 export const SET_EDIT_LABEL_MODE = 'SET_EDIT_LABEL_MODE';
 export const SET_SELECTED_LABEL = 'SET_SELECTED_LABEL';
 
-export function setActiveRecord(record){
-    return {
-        type: SET_ACTIVE_RECORD,
-        activeRecord: record
-    }
+export function setActiveRecord(record) {
+  return {
+    type: SET_ACTIVE_RECORD,
+    activeRecord: record,
+  };
 }
 
-export function setSelectedLabel(labelId){
-    return {
-        type: SET_SELECTED_LABEL,
-        selectedLabel: labelId
-    }
+export function setSelectedLabel(labelId) {
+  return {
+    type: SET_SELECTED_LABEL,
+    selectedLabel: labelId,
+  };
 }
 
 export function requestLabels() {
   return {
     type: REQUEST_LABELS,
     labels: [],
-    isFetching: true
+    isFetching: true,
   };
 }
 
 export function receiveLabels(json) {
-
   return {
     type: RECEIVE_LABELS,
     labels: json,
@@ -37,13 +36,13 @@ export function receiveLabels(json) {
   };
 };
 
-export function setEditLabelMode(mode=null){
-    return {
-        type: SET_EDIT_LABEL_MODE,
-        mode
-    }
+export function setEditLabelMode(mode=null) {
+  return {
+    type: SET_EDIT_LABEL_MODE,
+    mode,
+  };
 }
 
-export function fetchRecordLabels(pds){
-    //TODO
+export function fetchRecordLabels(pds) {
+  //TODO
 }

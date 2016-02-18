@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
   subject,
   pds,
   record,
-  notification
+  notification,
 });
 
 export default rootReducer;

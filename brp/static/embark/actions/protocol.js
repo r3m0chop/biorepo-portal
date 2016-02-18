@@ -9,29 +9,30 @@ export const RECEIVE_PROTOCOLS = 'RECEIVE_PROTOCOLS';
 export const SET_ADD_SUBJECT_MODE = 'SET_ADD_SUBJECT_MODE';
 
 export function setActiveProtocol(protocol) {
-    return dispatch => {
-        // If there is an active protocol fetch its organizations and PDS
-        if (protocol != null){
-            dispatch(fetchOrganizations(protocol))
-            // Refresh PDS for the select Protocol
-            dispatch(PDSActions.fetchPDS(protocol.id))
-        }
+  return dispatch => {
+    // If there is an active protocol fetch its organizations and PDS
+    if (protocol != null) {
+      dispatch(fetchOrganizations(protocol));
 
-        // Update our state with the Protocol given
-        dispatch({
-            type: SET_ACTIVE_PROTOCOL,
-            protocol
-        })
+      // Refresh PDS for the select Protocol
+      dispatch(PDSActions.fetchPDS(protocol.id));
     }
+
+    // Update our state with the Protocol given
+    dispatch({
+      type: SET_ACTIVE_PROTOCOL,
+      protocol,
+    });
+  };
 }
 
 export function requestProtocols() {
   return {
-    type: REQUEST_PROTOCOLS
+    type: REQUEST_PROTOCOLS,
   };
 }
 
-export function receiveProtocols(userId=0, json) {
+export function receiveProtocols(json) {
   return {
     type: RECEIVE_PROTOCOLS,
     protocols: json,
@@ -39,53 +40,55 @@ export function receiveProtocols(userId=0, json) {
   };
 };
 
-export function requestOrganizations(){
-    return {
-        type: REQUEST_PROTOCOL_ORGS
-    }
+export function requestOrganizations() {
+  return {
+    type: REQUEST_PROTOCOL_ORGS,
+  };
 }
 
-export function receiveOrganizations(json){
-    return {
-        type: RECEIVE_PROTOCOL_ORGS,
-        organizations: json
-    }
+export function receiveOrganizations(json) {
+  return {
+    type: RECEIVE_PROTOCOL_ORGS,
+    organizations: json,
+  };
 }
 
-export function fetchProtocols(userId=0) {
+export function fetchProtocols() {
+  // Fetch protocols authorized for authorized user.
   return dispatch => {
-    dispatch(requestProtocols(userId));
+    dispatch(requestProtocols());
     return fetch(`api/protocols/`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'token ' + token
-        }
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'token ' + token,
+      },
     })
       .then(response => response.json())
-      .then(json => dispatch(receiveProtocols(userId, json)));
+      .then(json => dispatch(receiveProtocols(json)));
   };
 }
 
 export function fetchOrganizations(protocol) {
-  var url = 'api/protocols/' + protocol.id + '/organizations/'
+  var url = 'api/protocols/' + protocol.id + '/organizations/';
   return dispatch => {
     dispatch(requestOrganizations());
     return fetch(url, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Authorization': 'token ' + token
-        }
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'token ' + token,
+      },
     })
       .then(response => response.json())
       .then(json => dispatch(receiveOrganizations(json)));
   };
 }
 
-export function setAddSubjectMode(mode=null){
-    return {
-        type: SET_ADD_SUBJECT_MODE,
-        mode
-    }
+export function setAddSubjectMode(mode=null) {
+  // Update state to enable or disable AddSubject mode
+  return {
+    type: SET_ADD_SUBJECT_MODE,
+    mode,
+  };
 }

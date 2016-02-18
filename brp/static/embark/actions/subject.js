@@ -17,37 +17,36 @@ export const ADD_SUBJECT_FAILURE = 'ADD_SUBJECT_FAILURE';
 export const ADD_SUBJECT_SUCCESS = 'ADD_SUBJECT_SUCCESS';
 export const SET_LINK_MODE = 'SET_LINK_MODE';
 
-function checkStatus(response){
-    if (response.status >= 200 && response.status < 300) {
-      return response
-    } else {
-      var error = new Error(response.statusText)
-      error.response = response
-      return error
+function checkStatus(response) {
+  if (response.status >= 200 && response.status < 300) {
+    return response;
+  } else {
+    var error = new Error(response.statusText);
+    error.response = response;
+    return error;
   }
 }
 
-function checkAddSubject(json){
-    var [ success, subject, errors ] = json
-    if (!success){
-        var error = new Error("Unable to add subject")
-        error.errors = errors
-        throw error
-    } else {
-        return subject
-    }
+function checkAddSubject(json) {
+  var [success, subject, errors] = json;
+  if (!success) {
+    var error = new Error('Unable to add subject');
+    error.errors = errors;
+    throw error;
+  } else {
+    return subject;
+  }
 }
 
 export function requestSubjects() {
   return {
     type: REQUEST_SUBJECTS,
     subjects: [],
-    isFetching: true
+    isFetching: true,
   };
 }
 
 export function receiveSubjects(json) {
-
   return {
     type: RECEIVE_SUBJECTS,
     subjects: json,
@@ -56,15 +55,15 @@ export function receiveSubjects(json) {
   };
 };
 
-export function setActiveSubject(subject){
-    return dispatch => {
-        dispatch(RecordActions.setActiveRecord(null));
-        dispatch(hideActionPanel());
-        dispatch({
-            type: SET_ACTIVE_SUBJECT,
-            subject
-        });
-    }
+export function setActiveSubject(subject) {
+  return dispatch => {
+    dispatch(RecordActions.setActiveRecord(null));
+    dispatch(hideActionPanel());
+    dispatch({
+      type: SET_ACTIVE_SUBJECT,
+      subject,
+    });
+  };
 }
 
 export function fetchSubjects(protocolId) {

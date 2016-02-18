@@ -18,7 +18,7 @@ function pds(state = initialState, action) {
         items: action.pds,
       });
     default:
-      return state
+      return state;
   }
 }
 

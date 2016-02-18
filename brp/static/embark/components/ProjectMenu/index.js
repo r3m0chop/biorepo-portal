@@ -6,44 +6,47 @@ import * as SubjectActions from '../../actions/subject';
 
 class ProjectMenu extends React.Component {
 
-    constructor(props){
-        super(props);
-    }
+  constructor(props) {
+    super(props);
+  }
 
-    componentDidMount(){
-        this.props.dispatch(ProtocolActions.setActiveProtocol(null))
-    }
+  componentDidMount() {
+    this.props.dispatch(ProtocolActions.setActiveProtocol(null));
+  }
 
-    handleClick(protocol){
-        this.props.dispatch(ProtocolActions.setActiveProtocol(protocol))
-        this.props.dispatch(SubjectActions.fetchSubjects(protocol.id))
-        // Also trigger the retrieval of relevant subjects
-    }
+  handleClick(protocol) {
+    this.props.dispatch(ProtocolActions.setActiveProtocol(protocol));
+    this.props.dispatch(SubjectActions.fetchSubjects(protocol.id));
+  }
 
-    render() {
+  render() {
+    return (
+        <div>
+          <p>Welcome Back</p>
+          <p><i>Select a project for data entry</i></p>
+          { this.props.protocols.items.map(function (protocol, i) {
+            var url = 'dataentry/protocol/' + protocol.id;
             return (
-                <div>
-                    <p>Welcome Back</p>
-                    <p><i>Select a project for data entry</i></p>
-                    { this.props.protocols.items.map(function(protocol, i){
-                        var url = 'dataentry/protocol/' + protocol.id
-                        return (
-                            <div key={i} className="lg-col-12">
-                            <Link className="project-row-link" onClick={this.handleClick.bind(this, protocol)} to={url}> {protocol.name} </Link>
-                            </div>
-                        )
-                    }, this )}
-                    { this.props.children }
+                <div key={i} className="lg-col-12">
+                <Link
+                  className="project-row-link"
+                  onClick={this.handleClick.bind(this, protocol)}
+                  to={url}> {protocol.name}
+                </Link>
                 </div>
-            )
-    }
+            );
+          }, this)}
+          { this.props.children }
+        </div>
+    );
+  }
 }
 
 function mapStateToProps(state) {
   return {
     protocols: {
-      items: state.protocol.items
-    }
+      items: state.protocol.items,
+    },
   };
 }
 
