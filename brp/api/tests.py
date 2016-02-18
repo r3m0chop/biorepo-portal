@@ -39,24 +39,47 @@ class TestProtocolAPI(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
+        protocol = response.data[0]
         self.assertEqual(
-            [{
-                'data_source': {
-                    'description': u"CHOP's REDCap Instance",
-                    'url': u'https://redcap.chop.edu/api/',
-                    'ehb_service_es_id': 1,
-                    'desc_help': 'Please briefly describe this data source.',
-                    'id': 1,
-                    'name': u'REDCap'
-                },
-                'protocol': 'http://testserver/api/protocols/1/',
-                'max_records_per_subject': -1,
-                'driver': 0,
-                'driver_configuration': '',
-                'display_label': u'Health Data',
-                'authorized': True,
-                'path': u'Demo',
-                'id': 1
-            }],
-            response.data
+            protocol['data_source'],
+            {
+                'description': u"CHOP's REDCap Instance",
+                'url': u'https://redcap.chop.edu/api/',
+                'ehb_service_es_id': 1,
+                'desc_help': 'Please briefly describe this data source.',
+                'id': 1,
+                'name': u'REDCap'
+            }
+        )
+        self.assertEqual(
+            protocol['protocol'],
+            'http://testserver/api/protocols/1/'
+        )
+        self.assertEqual(
+            protocol['max_records_per_subject'],
+            -1
+        )
+        self.assertEqual(
+            protocol['driver'],
+            0,
+        )
+        self.assertEqual(
+            protocol['driver_configuration'],
+            {'labels': [(1, 'Record')]}
+        )
+        self.assertEqual(
+            protocol['display_label'],
+            u'Health Data',
+        )
+        self.assertEqual(
+            protocol['authorized'],
+            True
+        )
+        self.assertEqual(
+            protocol['path'],
+            u'Demo'
+        )
+        self.assertEqual(
+            protocol['id'],
+            1
         )
