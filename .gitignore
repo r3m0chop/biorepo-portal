@@ -11,4 +11,4 @@ _site/
 rc_driver
 *.db
 node_modules
- brp/static/embark/build/
+brp/static/embark/build/bundle.js
