@@ -307,7 +307,7 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             if pds.driver_configuration != '':
                 dc = json.loads(pds.driver_configuration)
             else:
-                dc = ''
+                dc = {}
             # If labels are defined get label names from eHB.
             # (label_id, label_description)
             if 'labels' in dc.keys():
