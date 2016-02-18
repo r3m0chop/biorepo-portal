@@ -60,11 +60,11 @@
 
 	var _ProjectMenu2 = _interopRequireDefault(_ProjectMenu);
 
-	var _SubjectMenu = __webpack_require__(429);
+	var _SubjectMenu = __webpack_require__(428);
 
 	var _SubjectMenu2 = _interopRequireDefault(_SubjectMenu);
 
-	var _SubjectView = __webpack_require__(451);
+	var _SubjectView = __webpack_require__(450);
 
 	var _SubjectView2 = _interopRequireDefault(_SubjectView);
 
@@ -24891,7 +24891,7 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _notification = __webpack_require__(428);
+	var _notification = __webpack_require__(417);
 
 	var NotificationActions = _interopRequireWildcard(_notification);
 
@@ -24953,11 +24953,18 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var style = {
+	                NotificationItem: { // Override the notification item
+	                    DefaultStyle: { // Applied to every notification, regardless of the notification level
+	                        margin: '92px 5px 2px 1px'
+	                    }
+	                }
+	            };
 	            return _react2.default.createElement(
 	                'div',
 	                null,
 	                _react2.default.createElement(_Navbar2.default, null),
-	                _react2.default.createElement(_reactNotificationSystem2.default, { ref: 'notificationSystem' }),
+	                _react2.default.createElement(_reactNotificationSystem2.default, { style: style, ref: 'notificationSystem' }),
 	                this.props.children
 	            );
 	        }
@@ -25004,7 +25011,7 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -31055,7 +31062,7 @@
 
 	var _isomorphicFetch2 = _interopRequireDefault(_isomorphicFetch);
 
-	var _notification = __webpack_require__(428);
+	var _notification = __webpack_require__(417);
 
 	var NotificationActions = _interopRequireWildcard(_notification);
 
@@ -31122,6 +31129,43 @@
 
 /***/ },
 /* 417 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.addNotification = addNotification;
+	exports.removeNotification = removeNotification;
+	exports.renderNotification = renderNotification;
+	var ADD_NOTIFICATION = exports.ADD_NOTIFICATION = 'ADD_NOTIFICATION';
+	var REMOVE_NOTIFICATION = exports.REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION';
+	var RENDER_NOTIFICATION = exports.RENDER_NOTIFICATION = 'RENDER_NOTIFICATION';
+
+	function addNotification(notification) {
+	    // Add a notification to the notification system.
+	    return {
+	        type: ADD_NOTIFICATION,
+	        'notification': notification
+	    };
+	}
+	function removeNotification(notification) {
+	    // Add a notification to the notification system.
+	    return {
+	        type: REMOVE_NOTIFICATION,
+	        'notification': notification
+	    };
+	}
+	function renderNotification() {
+	    // Add a notification to the notification system.
+	    return {
+	        type: RENDER_NOTIFICATION
+	    };
+	}
+
+/***/ },
+/* 418 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31138,6 +31182,7 @@
 	exports.fetchSubjects = fetchSubjects;
 	exports.addSubjectRequest = addSubjectRequest;
 	exports.addSubjectSuccess = addSubjectSuccess;
+	exports.addSubjectFailure = addSubjectFailure;
 	exports.addSubject = addSubject;
 	exports.updateSubjectRequest = updateSubjectRequest;
 	exports.updateSubjectSuccess = updateSubjectSuccess;
@@ -31156,11 +31201,11 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _record = __webpack_require__(418);
+	var _record = __webpack_require__(459);
 
 	var RecordActions = _interopRequireWildcard(_record);
 
-	var _notification = __webpack_require__(428);
+	var _notification = __webpack_require__(417);
 
 	var NotificationActions = _interopRequireWildcard(_notification);
 
@@ -31189,7 +31234,7 @@
 	    } else {
 	        var error = new Error(response.statusText);
 	        error.response = response;
-	        throw error;
+	        return error;
 	    }
 	}
 
@@ -31201,7 +31246,8 @@
 	    var errors = _json[2];
 
 	    if (!success) {
-	        var error = new Error(errors);
+	        var error = new Error("Unable to add subject");
+	        error.errors = errors;
 	        throw error;
 	    } else {
 	        return subject;
@@ -31264,12 +31310,24 @@
 
 	function addSubjectSuccess(protocol) {
 	    return function (dispatch) {
-	        dispatch(NotificationActions.addNotification({ 'message': 'Subject Added', 'level': 'success' }));
+	        dispatch(NotificationActions.addNotification({
+	            'message': 'Subject Added',
+	            'level': 'success',
+	            'autoDismiss': 2
+	        }));
 	        dispatch(ProtocolActions.setAddSubjectMode());
 	        dispatch(fetchSubjects(protocol.id));
 	        dispatch({
 	            type: ADD_SUBJECT_SUCCESS
 	        });
+	    };
+	}
+
+	function addSubjectFailure(error) {
+	    var errors = error.errors;
+	    return {
+	        type: ADD_SUBJECT_FAILURE,
+	        errors: errors
 	    };
 	}
 
@@ -31285,10 +31343,12 @@
 	                'X-CSRFToken': csrf_token
 	            },
 	            body: JSON.stringify(subject)
-	        }).then(checkStatus).then(function (response) {
+	        }).then(function (response) {
 	            return response.json();
 	        }).then(checkAddSubject).then(function (subject) {
 	            return dispatch(addSubjectSuccess(protocol));
+	        }).catch(function (errors) {
+	            return dispatch(addSubjectFailure(errors));
 	        });
 	    };
 	}
@@ -31308,7 +31368,8 @@
 	        });
 	        dispatch(NotificationActions.addNotification({
 	            'message': 'Subject Updated',
-	            'level': 'success'
+	            'level': 'success',
+	            'autoDismiss': 2
 	        }));
 	        dispatch(NotificationActions.renderNotification());
 	    };
@@ -31365,72 +31426,6 @@
 	        type: SET_LINK_MODE,
 	        mode: mode
 	    };
-	}
-
-/***/ },
-/* 418 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.setActiveRecord = setActiveRecord;
-	exports.setSelectedLabel = setSelectedLabel;
-	exports.requestLabels = requestLabels;
-	exports.receiveLabels = receiveLabels;
-	exports.setEditLabelMode = setEditLabelMode;
-	exports.fetchRecordLabels = fetchRecordLabels;
-	var SET_ACTIVE_RECORD = exports.SET_ACTIVE_RECORD = 'SET_ACTIVE_RECORD';
-	var REQUEST_LABELS = exports.REQUEST_LABELS = 'REQUEST_LABELS';
-	var RECEIVE_LABELS = exports.RECEIVE_LABELS = 'RECEIVE_LABELS';
-	var SET_EDIT_LABEL_MODE = exports.SET_EDIT_LABEL_MODE = 'SET_EDIT_LABEL_MODE';
-	var SET_SELECTED_LABEL = exports.SET_SELECTED_LABEL = 'SET_SELECTED_LABEL';
-
-	function setActiveRecord(record) {
-	    return {
-	        type: SET_ACTIVE_RECORD,
-	        activeRecord: record
-	    };
-	}
-
-	function setSelectedLabel(labelId) {
-	    return {
-	        type: SET_SELECTED_LABEL,
-	        selectedLabel: labelId
-	    };
-	}
-
-	function requestLabels() {
-	    return {
-	        type: REQUEST_LABELS,
-	        labels: [],
-	        isFetching: true
-	    };
-	}
-
-	function receiveLabels(json) {
-
-	    return {
-	        type: RECEIVE_LABELS,
-	        labels: json,
-	        isFetching: false,
-	        receivedAt: Date.now()
-	    };
-	};
-
-	function setEditLabelMode() {
-	    var mode = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-
-	    return {
-	        type: SET_EDIT_LABEL_MODE,
-	        mode: mode
-	    };
-	}
-
-	function fetchRecordLabels(pds) {
-	    //TODO
 	}
 
 /***/ },
@@ -32469,7 +32464,6 @@
 	            if (protocol) {
 	                var subject_url = 'dataentry/protocol/' + protocol.id;
 	            }
-	            console.log(this.props);
 	            return _react2.default.createElement(
 	                'div',
 	                { className: 'navbar navbar-ct-primary navbar-fixed-top', role: 'navigation' },
@@ -32540,43 +32534,6 @@
 
 /***/ },
 /* 428 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.addNotification = addNotification;
-	exports.removeNotification = removeNotification;
-	exports.renderNotification = renderNotification;
-	var ADD_NOTIFICATION = exports.ADD_NOTIFICATION = 'ADD_NOTIFICATION';
-	var REMOVE_NOTIFICATION = exports.REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION';
-	var RENDER_NOTIFICATION = exports.RENDER_NOTIFICATION = 'RENDER_NOTIFICATION';
-
-	function addNotification(notification) {
-	    // Add a notification to the notification system.
-	    return {
-	        type: ADD_NOTIFICATION,
-	        'notification': notification
-	    };
-	}
-	function removeNotification(notification) {
-	    // Add a notification to the notification system.
-	    return {
-	        type: REMOVE_NOTIFICATION,
-	        'notification': notification
-	    };
-	}
-	function renderNotification() {
-	    // Add a notification to the notification system.
-	    return {
-	        type: RENDER_NOTIFICATION
-	    };
-	}
-
-/***/ },
-/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32591,7 +32548,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _griddleReact = __webpack_require__(430);
+	var _griddleReact = __webpack_require__(429);
 
 	var _griddleReact2 = _interopRequireDefault(_griddleReact);
 
@@ -32599,15 +32556,15 @@
 
 	var _reactRouter = __webpack_require__(367);
 
-	var _BackButton = __webpack_require__(446);
+	var _BackButton = __webpack_require__(445);
 
 	var _BackButton2 = _interopRequireDefault(_BackButton);
 
-	var _NewSubjectForm = __webpack_require__(447);
+	var _NewSubjectForm = __webpack_require__(446);
 
 	var _NewSubjectForm2 = _interopRequireDefault(_NewSubjectForm);
 
-	var _LoadingGif = __webpack_require__(450);
+	var _LoadingGif = __webpack_require__(449);
 
 	var _LoadingGif2 = _interopRequireDefault(_LoadingGif);
 
@@ -32615,7 +32572,7 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -32759,7 +32716,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectMenu);
 
 /***/ },
-/* 430 */
+/* 429 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -32782,19 +32739,19 @@
 	};
 
 	var React = __webpack_require__(191);
-	var GridTable = __webpack_require__(431);
-	var GridFilter = __webpack_require__(437);
-	var GridPagination = __webpack_require__(438);
-	var GridSettings = __webpack_require__(439);
-	var GridNoData = __webpack_require__(440);
-	var GridRow = __webpack_require__(441);
-	var CustomRowComponentContainer = __webpack_require__(443);
-	var CustomPaginationContainer = __webpack_require__(444);
-	var CustomFilterContainer = __webpack_require__(445);
-	var ColumnProperties = __webpack_require__(434);
-	var RowProperties = __webpack_require__(436);
-	var deep = __webpack_require__(442);
-	var _ = __webpack_require__(433);
+	var GridTable = __webpack_require__(430);
+	var GridFilter = __webpack_require__(436);
+	var GridPagination = __webpack_require__(437);
+	var GridSettings = __webpack_require__(438);
+	var GridNoData = __webpack_require__(439);
+	var GridRow = __webpack_require__(440);
+	var CustomRowComponentContainer = __webpack_require__(442);
+	var CustomPaginationContainer = __webpack_require__(443);
+	var CustomFilterContainer = __webpack_require__(444);
+	var ColumnProperties = __webpack_require__(433);
+	var RowProperties = __webpack_require__(435);
+	var deep = __webpack_require__(441);
+	var _ = __webpack_require__(432);
 
 	var Griddle = React.createClass({
 	    displayName: 'Griddle',
@@ -33545,7 +33502,7 @@
 
 
 /***/ },
-/* 431 */
+/* 430 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -33554,11 +33511,11 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var GridTitle = __webpack_require__(432);
-	var GridRowContainer = __webpack_require__(435);
-	var ColumnProperties = __webpack_require__(434);
-	var RowProperties = __webpack_require__(436);
-	var _ = __webpack_require__(433);
+	var GridTitle = __webpack_require__(431);
+	var GridRowContainer = __webpack_require__(434);
+	var ColumnProperties = __webpack_require__(433);
+	var RowProperties = __webpack_require__(435);
+	var _ = __webpack_require__(432);
 
 	var GridTable = React.createClass({
 	  displayName: 'GridTable',
@@ -33810,7 +33767,7 @@
 
 
 /***/ },
-/* 432 */
+/* 431 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -33819,8 +33776,8 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var _ = __webpack_require__(433);
-	var ColumnProperties = __webpack_require__(434);
+	var _ = __webpack_require__(432);
+	var ColumnProperties = __webpack_require__(433);
 
 	var GridTitle = React.createClass({
 	    displayName: 'GridTitle',
@@ -33913,7 +33870,7 @@
 
 
 /***/ },
-/* 433 */
+/* 432 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.8.3
@@ -35467,7 +35424,7 @@
 
 
 /***/ },
-/* 434 */
+/* 433 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -35476,7 +35433,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var _ = __webpack_require__(433);
+	var _ = __webpack_require__(432);
 
 	var ColumnProperties = (function () {
 	  function ColumnProperties() {
@@ -35571,7 +35528,7 @@
 
 
 /***/ },
-/* 435 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35580,7 +35537,7 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var ColumnProperties = __webpack_require__(434);
+	var ColumnProperties = __webpack_require__(433);
 
 	var GridRowContainer = React.createClass({
 	  displayName: 'GridRowContainer',
@@ -35660,7 +35617,7 @@
 	    if (that.state.showChildren) {
 	      children = that.props.hasChildren && this.props.data["children"].map(function (row, index) {
 	        if (typeof row["children"] !== "undefined") {
-	          var Griddle = __webpack_require__(430);
+	          var Griddle = __webpack_require__(429);
 	          return React.createElement('tr', { style: { paddingLeft: 5 } }, React.createElement('td', { colSpan: that.props.columnSettings.getVisibleColumnCount(), className: 'griddle-parent', style: that.props.useGriddleStyles ? { border: "none", "padding": "0 0 0 5px" } : null }, React.createElement(Griddle, { isSubGriddle: true, results: [row], columns: that.props.columnSettings.getColumns(), tableClassName: that.props.tableClassName, parentRowExpandedClassName: that.props.parentRowExpandedClassName,
 	            parentRowCollapsedClassName: that.props.parentRowCollapsedClassName,
 	            showTableHeading: false, showPager: false, columnMetadata: that.props.columnSettings.columnMetadata,
@@ -35681,7 +35638,7 @@
 
 
 /***/ },
-/* 436 */
+/* 435 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35690,7 +35647,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var _ = __webpack_require__(433);
+	var _ = __webpack_require__(432);
 
 	var RowProperties = (function () {
 	  function RowProperties() {
@@ -35756,7 +35713,7 @@
 
 
 /***/ },
-/* 437 */
+/* 436 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35786,7 +35743,7 @@
 
 
 /***/ },
-/* 438 */
+/* 437 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35795,7 +35752,7 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var _ = __webpack_require__(433);
+	var _ = __webpack_require__(432);
 
 	//needs props maxPage, currentPage, nextFunction, prevFunction
 	var GridPagination = React.createClass({
@@ -35859,7 +35816,7 @@
 
 
 /***/ },
-/* 439 */
+/* 438 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35868,7 +35825,7 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var _ = __webpack_require__(433);
+	var _ = __webpack_require__(432);
 
 	var GridSettings = React.createClass({
 	    displayName: 'GridSettings',
@@ -35938,7 +35895,7 @@
 
 
 /***/ },
-/* 440 */
+/* 439 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35967,7 +35924,7 @@
 
 
 /***/ },
-/* 441 */
+/* 440 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -35976,9 +35933,9 @@
 	'use strict';
 
 	var React = __webpack_require__(191);
-	var _ = __webpack_require__(433);
-	var ColumnProperties = __webpack_require__(434);
-	var deep = __webpack_require__(442);
+	var _ = __webpack_require__(432);
+	var ColumnProperties = __webpack_require__(433);
+	var deep = __webpack_require__(441);
 
 	var GridRow = React.createClass({
 	    displayName: 'GridRow',
@@ -36103,12 +36060,12 @@
 
 
 /***/ },
-/* 442 */
+/* 441 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _ = __webpack_require__(433);
+	var _ = __webpack_require__(432);
 
 	// Credits: https://github.com/documentcloud/underscore-contrib
 	// Sub module: underscore.object.selectors
@@ -36214,7 +36171,7 @@
 
 
 /***/ },
-/* 443 */
+/* 442 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -36260,7 +36217,7 @@
 
 
 /***/ },
-/* 444 */
+/* 443 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -36302,7 +36259,7 @@
 
 
 /***/ },
-/* 445 */
+/* 444 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -36340,7 +36297,7 @@
 
 
 /***/ },
-/* 446 */
+/* 445 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36422,7 +36379,7 @@
 	exports.default = (0, _reactRedux.connect)()(BackButton);
 
 /***/ },
-/* 447 */
+/* 446 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36441,15 +36398,15 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _SubjectOrgSelectField = __webpack_require__(448);
+	var _SubjectOrgSelectField = __webpack_require__(447);
 
 	var _SubjectOrgSelectField2 = _interopRequireDefault(_SubjectOrgSelectField);
 
-	var _SubjectTextField = __webpack_require__(449);
+	var _SubjectTextField = __webpack_require__(448);
 
 	var _SubjectTextField2 = _interopRequireDefault(_SubjectTextField);
 
@@ -36490,6 +36447,28 @@
 	            var dispatch = this.props.dispatch;
 
 	            dispatch(ProtocolActions.setAddSubjectMode());
+	        }
+	    }, {
+	        key: 'renderErrors',
+	        value: function renderErrors() {
+	            var errors = this.props.newFormErrors;
+	            var style = {
+	                fontSize: "12px",
+	                marginTop: "15px"
+	            };
+	            if (errors) {
+	                return errors.map(function (error, i) {
+	                    return _react2.default.createElement(
+	                        'div',
+	                        { key: i, style: style, className: 'alert alert-danger' },
+	                        _react2.default.createElement(
+	                            'div',
+	                            { className: 'container' },
+	                            error
+	                        )
+	                    );
+	                });
+	            }
 	        }
 	    }, {
 	        key: 'render',
@@ -36535,7 +36514,8 @@
 	                                    { className: 'btn btn-success new-subject-button' },
 	                                    'Add Subject'
 	                                )
-	                            )
+	                            ),
+	                            this.renderErrors()
 	                        )
 	                    )
 	                )
@@ -36563,7 +36543,8 @@
 	        },
 	        savingSubject: state.subject.isSaving,
 	        showInfoPanel: state.subject.showInfoPanel,
-	        showActionPanel: state.subject.showActionPanel
+	        showActionPanel: state.subject.showActionPanel,
+	        newFormErrors: state.subject.newFormErrors
 
 	    };
 	}
@@ -36571,7 +36552,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(NewSubjectForm);
 
 /***/ },
-/* 448 */
+/* 447 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36588,7 +36569,7 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -36666,7 +36647,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectOrgSelectField);
 
 /***/ },
-/* 449 */
+/* 448 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36683,7 +36664,7 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -36750,7 +36731,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectTextField);
 
 /***/ },
-/* 450 */
+/* 449 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -36799,7 +36780,7 @@
 	exports.default = LoadingGif;
 
 /***/ },
-/* 451 */
+/* 450 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -36816,19 +36797,19 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _BackButton = __webpack_require__(446);
+	var _BackButton = __webpack_require__(445);
 
 	var _BackButton2 = _interopRequireDefault(_BackButton);
 
-	var _LoadingGif = __webpack_require__(450);
+	var _LoadingGif = __webpack_require__(449);
 
 	var _LoadingGif2 = _interopRequireDefault(_LoadingGif);
 
-	var _SubjectCard = __webpack_require__(452);
+	var _SubjectCard = __webpack_require__(451);
 
 	var _SubjectCard2 = _interopRequireDefault(_SubjectCard);
 
-	var _SubjectRecords = __webpack_require__(456);
+	var _SubjectRecords = __webpack_require__(455);
 
 	var _SubjectRecords2 = _interopRequireDefault(_SubjectRecords);
 
@@ -36848,7 +36829,7 @@
 
 	var ProtocolActions = _interopRequireWildcard(_protocol);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -36987,7 +36968,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectView);
 
 /***/ },
-/* 452 */
+/* 451 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37006,15 +36987,15 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _SubjectCardEdit = __webpack_require__(453);
+	var _SubjectCardEdit = __webpack_require__(452);
 
 	var _SubjectCardEdit2 = _interopRequireDefault(_SubjectCardEdit);
 
-	var _SubjectCardView = __webpack_require__(455);
+	var _SubjectCardView = __webpack_require__(454);
 
 	var _SubjectCardView2 = _interopRequireDefault(_SubjectCardView);
 
@@ -37055,7 +37036,7 @@
 	exports.default = (0, _reactRedux.connect)()(SubjectCard);
 
 /***/ },
-/* 453 */
+/* 452 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37074,23 +37055,23 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _SubjectTextField = __webpack_require__(449);
+	var _SubjectTextField = __webpack_require__(448);
 
 	var _SubjectTextField2 = _interopRequireDefault(_SubjectTextField);
 
-	var _SubjectOrgSelectField = __webpack_require__(448);
+	var _SubjectOrgSelectField = __webpack_require__(447);
 
 	var _SubjectOrgSelectField2 = _interopRequireDefault(_SubjectOrgSelectField);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _ExternalIds = __webpack_require__(454);
+	var _ExternalIds = __webpack_require__(453);
 
 	var _ExternalIds2 = _interopRequireDefault(_ExternalIds);
 
-	var _LoadingGif = __webpack_require__(450);
+	var _LoadingGif = __webpack_require__(449);
 
 	var _LoadingGif2 = _interopRequireDefault(_LoadingGif);
 
@@ -37246,7 +37227,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectCardEdit);
 
 /***/ },
-/* 454 */
+/* 453 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37265,7 +37246,7 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
@@ -37331,7 +37312,7 @@
 	exports.default = (0, _reactRedux.connect)()(ExternalIDs);
 
 /***/ },
-/* 455 */
+/* 454 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37350,11 +37331,11 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _ExternalIds = __webpack_require__(454);
+	var _ExternalIds = __webpack_require__(453);
 
 	var _ExternalIds2 = _interopRequireDefault(_ExternalIds);
 
@@ -37456,7 +37437,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectCardView);
 
 /***/ },
-/* 456 */
+/* 455 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37471,19 +37452,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _PDSRecordGroup = __webpack_require__(457);
+	var _PDSRecordGroup = __webpack_require__(456);
 
 	var _PDSRecordGroup2 = _interopRequireDefault(_PDSRecordGroup);
 
-	var _reactSkylight = __webpack_require__(458);
+	var _reactSkylight = __webpack_require__(457);
 
 	var _reactSkylight2 = _interopRequireDefault(_reactSkylight);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _record = __webpack_require__(418);
+	var _record = __webpack_require__(459);
 
 	var RecordActions = _interopRequireWildcard(_record);
 
@@ -37521,28 +37502,20 @@
 	            if (this.props.linkMode) {
 	                return _react2.default.createElement(
 	                    'div',
-	                    { className: 'alert alert-warning alert-with-icon', 'data-notify': 'container' },
+	                    { className: 'alert alert-warning alert-with-icon link-banner', 'data-notify': 'container' },
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'container' },
+	                        _react2.default.createElement('i', { className: 'alert-icon ti-bell' }),
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'alert-wrapper' },
-	                            _react2.default.createElement(
-	                                'button',
-	                                { type: 'button', className: 'close', 'data-dismiss': 'alert', 'aria-label': 'Close' },
-	                                _react2.default.createElement(
-	                                    'span',
-	                                    { 'aria-hidden': 'true' },
-	                                    '×'
-	                                )
-	                            ),
-	                            _react2.default.createElement('i', { className: 'alert-icon ti-bell' }),
-	                            _react2.default.createElement(
-	                                'div',
-	                                { className: 'message' },
-	                                'Currently linking records. Please select the second record you would like to link.'
-	                            )
+	                            { className: 'message' },
+	                            'Currently linking records. Please select the second record you would like to link.'
+	                        ),
+	                        _react2.default.createElement(
+	                            'button',
+	                            { className: '' },
+	                            'close'
 	                        )
 	                    )
 	                );
@@ -37613,7 +37586,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(SubjectRecords);
 
 /***/ },
-/* 457 */
+/* 456 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37630,15 +37603,15 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _reactSkylight = __webpack_require__(458);
+	var _reactSkylight = __webpack_require__(457);
 
 	var _reactSkylight2 = _interopRequireDefault(_reactSkylight);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _record = __webpack_require__(418);
+	var _record = __webpack_require__(459);
 
 	var RecordActions = _interopRequireWildcard(_record);
 
@@ -37671,11 +37644,13 @@
 	        key: 'handleRecordClick',
 	        value: function handleRecordClick(record) {
 	            var dispatch = this.props.dispatch;
+
 	            if (this.props.linkMode) {
 	                alert('linking ' + this.props.activeRecord.id + ' with ' + record.id);
 	                dispatch(SubjectActions.setLinkMode());
 	            } else {
-	                dispatch(SubjectActions.showActionPanel());
+
+	                // dispatch(SubjectActions.showActionPanel());
 	                dispatch(RecordActions.setActiveRecord(record));
 	            }
 	        }
@@ -37697,6 +37672,23 @@
 	            url += this.props.selectedLabel;
 	            // this.context.history.go(url)
 	            window.location.href = url;
+	        }
+	    }, {
+	        key: 'handleViewRecordClick',
+	        value: function handleViewRecordClick() {}
+	    }, {
+	        key: 'handleLinkRecordClick',
+	        value: function handleLinkRecordClick() {
+	            var dispatch = this.props.dispatch;
+
+	            dispatch(SubjectActions.setLinkMode());
+	        }
+	    }, {
+	        key: 'handleEditRecordClick',
+	        value: function handleEditRecordClick() {
+	            var dispatch = this.props.dispatch;
+
+	            dispatch(RecordActions.setEditLabelMode());
 	        }
 	    }, {
 	        key: 'renderLabelSelect',
@@ -37772,7 +37764,10 @@
 	            };
 	            var exRecStyle = {
 	                cursor: "pointer",
-	                backgroundColor: "#ddecf9"
+	                backgroundColor: "#ddecf9",
+	                borderTop: "1px solid #CCC5B9",
+	                borderBottom: "1px solid #CCC5B9"
+	                // height: "100px"
 	            };
 	            var pinStyle = {
 	                color: "coral"
@@ -37799,6 +37794,21 @@
 	                                'td',
 	                                null,
 	                                record.modified
+	                            ),
+	                            _react2.default.createElement(
+	                                'td',
+	                                { className: 'row-action', onClick: this.handleEditRecordClick.bind(this) },
+	                                'Label'
+	                            ),
+	                            _react2.default.createElement(
+	                                'td',
+	                                { className: 'row-action', onClick: this.handleLinkRecordClick.bind(this) },
+	                                'Link'
+	                            ),
+	                            _react2.default.createElement(
+	                                'td',
+	                                { className: 'row-action' },
+	                                'View'
 	                            )
 	                        );
 	                    } else {
@@ -37920,7 +37930,7 @@
 	exports.default = (0, _reactRedux.connect)(mapStateToProps)(PDSRecordGroup);
 
 /***/ },
-/* 458 */
+/* 457 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37935,7 +37945,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _styles = __webpack_require__(459);
+	var _styles = __webpack_require__(458);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -38088,7 +38098,7 @@
 	exports.default = SkyLight;
 
 /***/ },
-/* 459 */
+/* 458 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -38136,6 +38146,72 @@
 	exports.default = styles;
 
 /***/ },
+/* 459 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.setActiveRecord = setActiveRecord;
+	exports.setSelectedLabel = setSelectedLabel;
+	exports.requestLabels = requestLabels;
+	exports.receiveLabels = receiveLabels;
+	exports.setEditLabelMode = setEditLabelMode;
+	exports.fetchRecordLabels = fetchRecordLabels;
+	var SET_ACTIVE_RECORD = exports.SET_ACTIVE_RECORD = 'SET_ACTIVE_RECORD';
+	var REQUEST_LABELS = exports.REQUEST_LABELS = 'REQUEST_LABELS';
+	var RECEIVE_LABELS = exports.RECEIVE_LABELS = 'RECEIVE_LABELS';
+	var SET_EDIT_LABEL_MODE = exports.SET_EDIT_LABEL_MODE = 'SET_EDIT_LABEL_MODE';
+	var SET_SELECTED_LABEL = exports.SET_SELECTED_LABEL = 'SET_SELECTED_LABEL';
+
+	function setActiveRecord(record) {
+	    return {
+	        type: SET_ACTIVE_RECORD,
+	        activeRecord: record
+	    };
+	}
+
+	function setSelectedLabel(labelId) {
+	    return {
+	        type: SET_SELECTED_LABEL,
+	        selectedLabel: labelId
+	    };
+	}
+
+	function requestLabels() {
+	    return {
+	        type: REQUEST_LABELS,
+	        labels: [],
+	        isFetching: true
+	    };
+	}
+
+	function receiveLabels(json) {
+
+	    return {
+	        type: RECEIVE_LABELS,
+	        labels: json,
+	        isFetching: false,
+	        receivedAt: Date.now()
+	    };
+	};
+
+	function setEditLabelMode() {
+	    var mode = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+	    return {
+	        type: SET_EDIT_LABEL_MODE,
+	        mode: mode
+	    };
+	}
+
+	function fetchRecordLabels(pds) {
+	    //TODO
+	}
+
+/***/ },
 /* 460 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -38153,11 +38229,11 @@
 
 	var _reactRedux = __webpack_require__(349);
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var SubjectActions = _interopRequireWildcard(_subject);
 
-	var _record = __webpack_require__(418);
+	var _record = __webpack_require__(459);
 
 	var RecordActions = _interopRequireWildcard(_record);
 
@@ -38480,14 +38556,6 @@
 
 	function configureStore(initialState) {
 	  var store = createStoreWithMiddleware(_reducers2.default, initialState);
-
-	  if (false) {
-	    // Enable Webpack hot module replacement for reducers
-	    module.hot.accept('../reducers', function () {
-	      var nextRootReducer = require('../reducers');
-	      store.replaceReducer(nextRootReducer);
-	    });
-	  }
 
 	  return store;
 	}
@@ -38826,7 +38894,7 @@
 	  value: true
 	});
 
-	var _subject = __webpack_require__(417);
+	var _subject = __webpack_require__(418);
 
 	var _index = __webpack_require__(466);
 
@@ -38843,7 +38911,8 @@
 	  showInfoPanel: false,
 	  showActionPanel: false,
 	  addRecordMode: false,
-	  linkMode: false
+	  linkMode: false,
+	  newFormErrors: null
 	};
 
 	function subject() {
@@ -38905,7 +38974,11 @@
 	      }
 	    case _subject.ADD_SUBJECT_SUCCESS:
 	      return Object.assign({}, state, {
-	        newSubject: {}
+	        newFormErrors: null
+	      });
+	    case _subject.ADD_SUBJECT_FAILURE:
+	      return Object.assign({}, state, {
+	        newFormErrors: action.errors
 	      });
 	    default:
 	      return state;
@@ -38963,7 +39036,7 @@
 	    value: true
 	});
 
-	var _record = __webpack_require__(418);
+	var _record = __webpack_require__(459);
 
 	var initialState = {
 	    isFetching: false,
@@ -39013,7 +39086,7 @@
 	  value: true
 	});
 
-	var _notification = __webpack_require__(428);
+	var _notification = __webpack_require__(417);
 
 	var initialState = {
 	  items: []

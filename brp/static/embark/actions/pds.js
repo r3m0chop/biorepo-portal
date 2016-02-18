@@ -4,7 +4,6 @@ import * as NotificationActions from './notification';
 export const REQUEST_PDS = 'REQUEST_PDS';
 export const RECEIVE_PDS = 'RECEIVE_PDS';
 
-
 function checkResponse(response){
     if (response.status >= 200 && response.status < 300) {
       return response

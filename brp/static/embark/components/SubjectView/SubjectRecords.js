@@ -19,15 +19,11 @@ class SubjectRecords extends React.Component {
     renderLinkModeBanner(){
         if (this.props.linkMode){
             return (
-                <div className="alert alert-warning alert-with-icon" data-notify="container">
+        <div className="alert alert-warning alert-with-icon link-banner" data-notify="container">
             <div className="container">
-                <div className="alert-wrapper">
-                    <button type="button" className="close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">×</span>
-                    </button>
                     <i className="alert-icon ti-bell"></i>
                     <div className="message">Currently linking records. Please select the second record you would like to link.</div>
-                </div>
+                    <button className="">close</button>
             </div>
         </div>
             )

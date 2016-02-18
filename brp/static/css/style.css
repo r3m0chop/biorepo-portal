@@ -200,3 +200,16 @@ a {
     width: 100%;
     text-align: center;
 }
+td.row-action {
+    border-top: 1px solid #CCC5B9;
+    background-color: floralwhite;
+}
+td.row-action:hover {
+    color: coral !important;
+}
+.link-banner {
+    position: fixed;
+    top: 92px;
+    z-index:1000;
+    margin-left:-20px
+}

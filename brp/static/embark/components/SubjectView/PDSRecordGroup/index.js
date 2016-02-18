@@ -5,8 +5,8 @@ import * as SubjectActions from '../../../actions/subject';
 import * as RecordActions from '../../../actions/record';
 
 class PDSRecordGroup extends React.Component {
-    constructor(props){
-        super(props);
+    constructor(props) {
+      super(props);
     }
 
     addRecord(){
@@ -17,11 +17,13 @@ class PDSRecordGroup extends React.Component {
 
     handleRecordClick(record){
         const dispatch = this.props.dispatch
+
         if (this.props.linkMode) {
             alert('linking '+ this.props.activeRecord.id + ' with ' + record.id)
             dispatch(SubjectActions.setLinkMode())
         } else {
-            dispatch(SubjectActions.showActionPanel());
+
+            // dispatch(SubjectActions.showActionPanel());
             dispatch(RecordActions.setActiveRecord(record));
         }
     }
@@ -40,6 +42,20 @@ class PDSRecordGroup extends React.Component {
         url += this.props.selectedLabel
         // this.context.history.go(url)
         window.location.href=url
+    }
+
+    handleViewRecordClick(){
+
+    }
+
+    handleLinkRecordClick(){
+        const { dispatch } = this.props
+        dispatch(SubjectActions.setLinkMode())
+    }
+
+    handleEditRecordClick(){
+        const { dispatch } = this.props
+        dispatch(RecordActions.setEditLabelMode())
     }
 
     renderLabelSelect(){
@@ -87,7 +103,10 @@ class PDSRecordGroup extends React.Component {
         }
         var exRecStyle = {
             cursor: "pointer",
-            backgroundColor: "#ddecf9"
+            backgroundColor: "#ddecf9",
+            borderTop: "1px solid #CCC5B9",
+            borderBottom: "1px solid #CCC5B9"
+            // height: "100px"
         }
         var pinStyle = {
             color: "coral"
@@ -95,7 +114,16 @@ class PDSRecordGroup extends React.Component {
         if (this.props.records.length != 0){
             var recordNodes = this.props.records.map(function(record, i){
                 if (this.props.activeRecord != null && (this.props.activeRecord.id == record.id)){
-                    return <tr key={i} onClick={this.handleRecordClick.bind(this, record)} style={exRecStyle} ><td><i style={pinStyle} className="ti-pin2"></i> {record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>
+                    return (
+                        <tr key={i} onClick={this.handleRecordClick.bind(this, record)} style={exRecStyle} >
+                            <td><i style={pinStyle} className="ti-pin2"></i> {record.label_desc}</td>
+                            <td>{record.created}</td>
+                            <td>{record.modified}</td>
+                            <td className="row-action" onClick={this.handleEditRecordClick.bind(this)}>Label</td>
+                            <td className="row-action" onClick={this.handleLinkRecordClick.bind(this)}>Link</td>
+                            <td className="row-action">View</td>
+                        </tr>
+                    )
                 } else {
                     return <tr key={i} onClick={this.handleRecordClick.bind(this, record)} className="ExternalRecord" ><td>{record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>
                 }

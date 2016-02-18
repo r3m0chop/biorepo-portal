@@ -22,13 +22,8 @@
     <script src="{% static "paper/assets/js/ct-paper-checkbox.js" %}"></script>
     <link rel="stylesheet" href="{% static "paper/assets/css/themify-icons.css" %}">
     <link rel="stylesheet" href="{% static "css/style.css" %}">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.10/css/dataTables.bootstrap.min.css">
 
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/2.7.0/moment.min.js"></script>
-    <script type="https://cdn.datatables.net/1.10.10/js/dataTables.bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
-
     <!--     Fonts and icons     -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
@@ -64,7 +59,10 @@
             {% block main_content %}
             {% endblock %}
             {% if request.user.is_authenticated %}
-            <div id ="react"></div>
+
+            <div id ="react">
+                <center<img src="static/img/loader.gif"/></center>
+            </div>
             <script>
                 token="{{token}}"
                 csrf_token="{{csrf_token}}"

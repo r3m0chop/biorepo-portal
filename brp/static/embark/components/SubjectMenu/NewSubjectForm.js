@@ -22,6 +22,27 @@ class NewSubjectForm extends React.Component{
         dispatch(ProtocolActions.setAddSubjectMode());
     }
 
+    renderErrors(){
+        const errors = this.props.newFormErrors
+        const style = {
+            fontSize: "12px",
+            marginTop: "15px"
+        }
+        if (errors){
+            return (
+                errors.map(function(error, i){
+                    return (
+                        <div key={i} style={style} className="alert alert-danger">
+                            <div className="container">
+                                {error}
+                            </div>
+                        </div>
+                    )
+                })
+            )
+        }
+    }
+
     render(){
         const orgs = this.props.orgs
         return (
@@ -42,6 +63,7 @@ class NewSubjectForm extends React.Component{
                         <SubjectTextField new={true} label={"Date of Birth"} value={null} skey={"dob"} />
                        <button className="btn btn-success new-subject-button">Add Subject</button>
                     </form>
+                    {this.renderErrors()}
                     </div>
                 </div>
             </div>
@@ -68,7 +90,8 @@ function mapStateToProps(state){
       },
       savingSubject: state.subject.isSaving,
       showInfoPanel: state.subject.showInfoPanel,
-      showActionPanel: state.subject.showActionPanel
+      showActionPanel: state.subject.showActionPanel,
+      newFormErrors: state.subject.newFormErrors
 
     };
 }

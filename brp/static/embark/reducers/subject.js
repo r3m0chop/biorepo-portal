@@ -1,6 +1,6 @@
 import { REQUEST_SUBJECTS, RECEIVE_SUBJECTS, SET_ACTIVE_SUBJECT, SHOW_INFO_PANEL,
          HIDE_INFO_PANEL, SHOW_ACTION_PANEL, HIDE_ACTION_PANEL, UPDATE_SUBJECT_SUCCESS,
-         UPDATE_SUBJECT_REQUEST, SET_LINK_MODE, ADD_SUBJECT_SUCCESS } from '../actions/subject';
+         UPDATE_SUBJECT_REQUEST, SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE } from '../actions/subject';
 import rootReducer from './index';
 
 const initialState = {
@@ -12,7 +12,8 @@ const initialState = {
   showInfoPanel: false,
   showActionPanel: false,
   addRecordMode: false,
-  linkMode: false
+  linkMode: false,
+  newFormErrors: null
 };
 
 function subject(state = initialState, action) {
@@ -71,7 +72,11 @@ function subject(state = initialState, action) {
         }
     case ADD_SUBJECT_SUCCESS:
         return Object.assign({}, state, {
-            newSubject: {}
+            newFormErrors: null
+        })
+    case ADD_SUBJECT_FAILURE:
+        return Object.assign({}, state, {
+            newFormErrors: action.errors
         })
     default:
       return state

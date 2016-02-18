@@ -13,7 +13,6 @@ export default class Navbar extends React.Component {
         if (protocol){
             var subject_url = 'dataentry/protocol/' + protocol.id
         }
-        console.log(this.props)
         return (
             <div className="navbar navbar-ct-primary navbar-fixed-top" role="navigation">
                     <div className="navbar-header">

@@ -23,14 +23,15 @@ function checkStatus(response){
     } else {
       var error = new Error(response.statusText)
       error.response = response
-      throw error
+      return error
   }
 }
 
 function checkAddSubject(json){
     var [ success, subject, errors ] = json
     if (!success){
-        var error = new Error(errors)
+        var error = new Error("Unable to add subject")
+        error.errors = errors
         throw error
     } else {
         return subject
@@ -92,13 +93,25 @@ export function addSubjectRequest(){
 export function addSubjectSuccess(protocol){
     return dispatch => {
         dispatch(NotificationActions.addNotification(
-            {'message': 'Subject Added', 'level': 'success'}
+            {
+                'message': 'Subject Added',
+                'level': 'success',
+                'autoDismiss': 2
+            }
         ))
         dispatch(ProtocolActions.setAddSubjectMode())
         dispatch(fetchSubjects(protocol.id))
         dispatch({
             type: ADD_SUBJECT_SUCCESS
         });
+    }
+}
+
+export function addSubjectFailure(error){
+    var errors = error.errors
+    return {
+        type: ADD_SUBJECT_FAILURE,
+        errors: errors
     }
 }
 
@@ -115,12 +128,13 @@ export function addSubject(protocol, subject) {
             },
             body: JSON.stringify(subject)
         })
-            .then(checkStatus)
             .then(response => response.json())
             .then(checkAddSubject)
             .then(subject => dispatch(addSubjectSuccess(protocol)))
+            .catch(errors => dispatch(addSubjectFailure(errors)))
     }
 }
+
 
 export function updateSubjectRequest() {
     return {
@@ -138,7 +152,8 @@ export function updateSubjectSuccess(subject) {
         dispatch(NotificationActions.addNotification(
             {
                 'message': 'Subject Updated',
-                'level': 'success'
+                'level': 'success',
+                'autoDismiss': 2
             }
         ))
         dispatch(NotificationActions.renderNotification());

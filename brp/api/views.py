@@ -117,7 +117,7 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             dob=datetime.strptime(subject['dob'], '%Y-%m-%d')
         )
         srh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
-
+        org = Organization.objects.get(pk=new_subject.organization_id)
         errors = []
         try:
             subject = srh.get(
@@ -127,6 +127,19 @@ class ProtocolViewSet(viewsets.ModelViewSet):
             # If found this indicates the subject is already in the ehb for
             # this organization, but not necessarily for this protocol.
             # That will be checked below in the external record search
+            prefix = "A subject with this " + org.subject_id_label + " exists but with "
+            if subject.first_name != new_subject.first_name:
+                success = False
+                errors.append(prefix + "first name: " + subject.first_name)
+            if subject.last_name != new_subject.last_name:
+                success = False
+                errors.append(prefix + "last name: " + subject.last_name)
+            if subject.dob != new_subject.dob.date():
+                print type(subject.dob)
+                print type(new_subject.dob)
+
+                success = False
+                errors.append(prefix + "birth date: " + str(subject.dob))
         except PageNotFound:
             # Subject is not in the system so create it
             r = srh.create(new_subject)[0]
@@ -136,11 +149,19 @@ class ProtocolViewSet(viewsets.ModelViewSet):
 
         # Dont proceed if creation was not a success
         if not success:
-            return Response(json.dumps([success, errors, subject]))
+            subject = json.loads(Subject.json_from_identity(subject))
+            return Response([success, subject, errors], status=422)
 
+        if not errors:
+            errors = []
         # First check if the subject is already in the group.
         if protocol.getSubjects() and subject in protocol.getSubjects():
             # Subject is already in protocol
+            errors.append(
+                'This subject ' + org.subject_id_label +
+                ' has already been added to this project.'
+            )
+            logger.error("Could not add subject. They already exist on this protocol.")
             success = False
         else:
             # Add this subject to the protocol and create external record group
@@ -149,9 +170,13 @@ class ProtocolViewSet(viewsets.ModelViewSet):
                     success = True
                 else:
                     # Could not add subject to project
+                    errors.append(
+                        'Failed to complete eHB transactions. Could not add subject to project. Please try again.')
                     success = False
             else:
                 # For some reason we couldn't get the eHB to add the subject to the protocol group
+                errors.append(
+                    'Failed to complete eHB transactions. Could not add subject to project. Please try again.')
                 success = False
 
         subject = json.loads(Subject.json_from_identity(subject))

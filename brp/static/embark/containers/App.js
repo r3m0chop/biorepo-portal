@@ -43,10 +43,17 @@ class App extends React.Component {
     }
 
     render() {
+        var style = {
+          NotificationItem: { // Override the notification item
+            DefaultStyle: { // Applied to every notification, regardless of the notification level
+              margin: '92px 5px 2px 1px'
+            }
+          }
+        }
         return (
             <div>
                 <Navbar/>
-                <NotificationSystem ref="notificationSystem"/>
+                <NotificationSystem style={style} ref="notificationSystem"/>
                 {this.props.children}
             </div>
         )
