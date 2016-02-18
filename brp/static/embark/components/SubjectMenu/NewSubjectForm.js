@@ -1,5 +1,5 @@
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
-import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
 import SubjectOrgSelectField from '../SubjectView/SubjectCard/SubjectOrgSelectField';
 import SubjectTextField from '../SubjectView/SubjectCard/SubjectTextField';
@@ -12,16 +12,44 @@ class NewSubjectForm extends React.Component{
   }
 
   handleSaveClick(e) {
+    e.preventDefault();
     const protocol = this.props.protocol.activeProtocol;
     const subject = this.props.subject.newSubject;
     const { dispatch } = this.props;
-    dispatch(SubjectActions.addSubject(protocol, subject));
-    e.preventDefault();
+    if (this.isValid()) {
+      dispatch(SubjectActions.addSubject(protocol, subject));
+    }
   }
 
   handleCloseClick() {
     const { dispatch } = this.props;
-    dispatch(ProtocolActions.setAddSubjectMode());
+    dispatch(SubjectActions.setAddSubjectMode());
+  }
+
+  isValid() {
+    const subject = this.props.subject.newSubject;
+
+    if (Object.keys(subject).length == 0) {
+      return false;
+    }
+
+    if (subject.first_name == '') {
+      return false;
+    }
+
+    if (subject.last_name == '') {
+      return false;
+    }
+
+    if (subject.dob == '') {
+      return false;
+    }
+
+    if (subject.organization_subject_id != subject.organization_subject_id_validation) {
+      return false;
+    }
+
+    return true;
   }
 
   renderErrors() {

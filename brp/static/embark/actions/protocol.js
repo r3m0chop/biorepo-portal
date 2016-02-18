@@ -6,7 +6,6 @@ export const REQUEST_PROTOCOLS = 'REQUEST_PROTOCOLS';
 export const REQUEST_PROTOCOL_ORGS = 'REQUEST_PROTOCOL_ORGS';
 export const RECEIVE_PROTOCOL_ORGS = 'RECEIVE_PROTOCOL_ORGS';
 export const RECEIVE_PROTOCOLS = 'RECEIVE_PROTOCOLS';
-export const SET_ADD_SUBJECT_MODE = 'SET_ADD_SUBJECT_MODE';
 
 export function setActiveProtocol(protocol) {
   return dispatch => {
@@ -82,13 +81,5 @@ export function fetchOrganizations(protocol) {
     })
       .then(response => response.json())
       .then(json => dispatch(receiveOrganizations(json)));
-  };
-}
-
-export function setAddSubjectMode(mode=null) {
-  // Update state to enable or disable AddSubject mode
-  return {
-    type: SET_ADD_SUBJECT_MODE,
-    mode,
   };
 }

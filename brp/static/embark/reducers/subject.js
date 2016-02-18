@@ -2,7 +2,8 @@
 import { REQUEST_SUBJECTS, RECEIVE_SUBJECTS, SET_ACTIVE_SUBJECT,
          SHOW_INFO_PANEL, HIDE_INFO_PANEL, SHOW_ACTION_PANEL,
          HIDE_ACTION_PANEL, UPDATE_SUBJECT_SUCCESS, UPDATE_SUBJECT_REQUEST,
-         SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE } from '../actions/subject';
+         SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE,
+         SET_ADD_SUBJECT_MODE } from '../actions/subject';
 import rootReducer from './index';
 
 const initialState = {
@@ -25,6 +26,7 @@ function subject(state = initialState, action) {
       return Object.assign({}, state, {
         items: [],
         isFetching: true,
+        addSubjectMode: false,
       });
     case RECEIVE_SUBJECTS:
 
@@ -74,6 +76,19 @@ function subject(state = initialState, action) {
       } else {
         return Object.assign({}, state, {
           linkMode: !state.linkMode,
+        });
+      }
+
+    case SET_ADD_SUBJECT_MODE:
+      if (action.mode != null) {
+        return Object.assign({}, state, {
+          addSubjectMode: action.mode,
+          newFormErrors: null,
+        });
+      } else {
+        return Object.assign({}, state, {
+          addSubjectMode: !state.addSubjectMode,
+          newFormErrors: null,
         });
       }
 

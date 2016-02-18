@@ -41,7 +41,7 @@ class SubjectMenu extends React.Component {
 
     handleNewSubject() {
       const { dispatch } = this.props;
-      dispatch(ProtocolActions.setAddSubjectMode(true));
+      dispatch(SubjectActions.setAddSubjectMode(true));
       dispatch(ProtocolActions.setActiveProtocol(this.props.protocol.activeProtocol));
     }
 
@@ -79,11 +79,11 @@ class SubjectMenu extends React.Component {
       return (
         protocol ?
           <div>
-            { this.props.protocol.addSubjectMode ?
+            { this.props.subject.addSubjectMode ?
               <NewSubjectForm orgs={this.props.protocol.orgs}/> :
               <div/>
             }
-            { !this.props.protocol.addSubjectMode ?
+            { !this.props.subject.addSubjectMode ?
               <BackButton/> :
               <div/>
             }
@@ -124,11 +124,11 @@ function mapStateToProps(state) {
     protocol: {
       items: state.protocol.items,
       activeProtocol: state.protocol.activeProtocol,
-      addSubjectMode: state.protocol.addSubjectMode,
       orgs: state.protocol.orgs,
     },
     subject: {
       items: state.subject.items,
+      addSubjectMode: state.subject.addSubjectMode,
     },
   };
 }

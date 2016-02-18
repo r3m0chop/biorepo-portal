@@ -6,7 +6,6 @@ const initialState = {
   items: [],
   activeProtocol: null,
   orgs: [],
-  addSubjectMode: false,
 };
 
 function protocol(state = initialState, action) {
@@ -33,16 +32,6 @@ function protocol(state = initialState, action) {
       return Object.assign({}, state, {
         orgs: action.organizations,
       });
-    case SET_ADD_SUBJECT_MODE:
-      if (action.mode != null) {
-        return Object.assign({}, state, {
-          addSubjectMode: action.mode,
-        });
-      } else {
-        return Object.assign({}, state, {
-          addSubjectMode: !state.addSubjectMode,
-        });
-      }
 
     default:
       return state;
