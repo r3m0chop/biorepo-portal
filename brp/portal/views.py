@@ -71,6 +71,68 @@ def index(request):
         }, context_instance=RequestContext(request))
 
 
+def getExternalIdentifiers(pds, subject):
+    er_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD)
+    er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
+    lbls = er_label_rh.query()
+    try:
+        pds_records = er_rh.get(
+            external_system_url=pds.data_source.url, path=pds.path, subject_id=subject.id)
+    except PageNotFound:
+        pds_records = []
+    for ex_rec in pds_records:
+        for label in lbls:
+            if ex_rec.label_id == label['id']:
+                if label['label'] == '':
+                    ex_rec.label_desc = 'Record'
+                else:
+                    ex_rec.label_desc = label['label']
+    return pds_records
+
+
+def getProtocolDataSource(pk):
+    # TODO implement caching
+    try:
+        return ProtocolDataSource.objects.get(pk=pk)
+    except ProtocolDataSource.DoesNotExist:
+        raise Http404
+
+
+def getProtocolSubjects(protocol):
+    ck = '{0}_subjects'.format(protocol.id)
+    resp = cache.get(ck)
+    if resp:
+        subs = [Subject(-1).identity_from_jsonObject(sub) for sub in json.loads(resp)]
+        return subs
+    else:
+        subs = protocol.getSubjects()
+        if subs:
+            cache_payload = [json.loads(subject.json_from_identity(subject)) for subject in subs]
+            cache.set(ck, json.dumps(cache_payload))
+        return subs
+
+
+def getPDSSubject(pds, sub_id):
+    ck = '{0}_subjects'.format(pds.protocol.id)
+    resp = cache.get(ck)
+    if resp:
+        subs = json.loads(resp)
+        for subject in subs:
+            if subject['id'] == int(sub_id):
+                return Subject(-1).identity_from_jsonObject(subject)
+    else:
+        try:
+            s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+            subject = s_rh.get(id=sub_id)
+            if not pds.protocol.isSubjectOnProtocol(subject):
+                raise Http404
+            else:
+                return subject
+        except PageNotFound:
+            raise Http404
+
+    return None
+
 
 def getRedcapStatus():
     redcap_resp = cache.get('redcap_status')
@@ -265,6 +327,26 @@ def _create_external_system_record(request, driver, pds, subject, record_id=None
     er = SubjectUtils.create_new_ehb_external_record(
         pds, request.user, subject, rec_id, label)
     return er.id
+
+
+def _auth_unauth_source_lists(protocol, user, ignore_current_pds=None):
+    authorized_sources = []
+    unauthorized_sources = []
+    for pds in protocol.getProtocolDataSources():
+        if ignore_current_pds and pds == ignore_current_pds:
+            continue
+        try:
+            ProtocolUserCredentials.objects.get(
+                protocol=protocol, data_source=pds, user=user)
+            # creds exist so add this to authorized sources
+            authorized_sources.append(pds)
+        except ProtocolUserCredentials.DoesNotExist:
+            unauthorized_sources.append(pds)
+    authorized_sources = sorted(
+        authorized_sources, key=lambda source: source.display_label)
+    unauthorized_sources = sorted(
+        unauthorized_sources, key=lambda source: source.display_label)
+    return (authorized_sources, unauthorized_sources)
 
 
 @login_required
