@@ -17,17 +17,19 @@ class SubjectRecords extends React.Component {
     dispatch(SubjectActions.setActiveSubject(this.props.subject));
   }
 
+  dismissLinkMode() {
+    const { dispatch } = this.props;
+    dispatch(SubjectActions.setLinkMode(false));
+  }
+
   renderLinkModeBanner() {
     if (this.props.linkMode) {
       return (
-        <div className="alert alert-warning alert-with-icon link-banner" data-notify="container">
-          <div className="container">
-            <i className="alert-icon ti-bell"></i>
-            <div className="message">
+        <div className="link-banner" data-notify="container">
+              <span onClick={this.dismissLinkMode.bind(this)} className="link-close">
+                <i className="ti-close"></i>
+              </span>
               Currently linking records. Please select the second record you would like to link.
-            </div>
-            <button className="">close</button>
-          </div>
         </div>
       );
     }

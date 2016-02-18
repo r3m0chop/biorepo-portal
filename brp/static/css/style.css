@@ -217,5 +217,16 @@ td.row-action:hover {
     position: fixed;
     top: 92px;
     z-index:1000;
-    margin-left:-20px
+    margin-left:-20px;
+    background-color: #FFE28C;
+    color: #BB992F;
+    width:100%;
+    padding:10px;
+}
+.link-close {
+    padding-right:15px;
+}
+.link-close:hover {
+    color: #baa76b;
+    cursor: pointer;
 }
