@@ -3,8 +3,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SkyLight from 'react-skylight';
+import FloatingActionButton from 'material-ui/lib/floating-action-button';
+import ContentAdd from 'material-ui/lib/svg-icons/content/add';
 import * as SubjectActions from '../../../actions/subject';
 import * as RecordActions from '../../../actions/record';
+import * as PDSActions from '../../../actions/pds';
 
 class PDSRecordGroup extends React.Component {
 
@@ -21,7 +24,7 @@ class PDSRecordGroup extends React.Component {
       '/create/';
   }
 
-  handleRecordClick(record) {
+  handleRecordClick(record, pds) {
     const dispatch = this.props.dispatch;
 
     if (this.props.linkMode) {
@@ -31,6 +34,7 @@ class PDSRecordGroup extends React.Component {
 
       // dispatch(SubjectActions.showActionPanel());
       dispatch(RecordActions.setActiveRecord(record));
+      dispatch(PDSActions.setActivePDS(pds))
     }
   }
 
@@ -125,7 +129,7 @@ class PDSRecordGroup extends React.Component {
       var recordNodes = this.props.records.map(function (record, i) {
         if (this.props.activeRecord != null && (this.props.activeRecord.id == record.id)) {
           return (
-            <tr key={i} onClick={this.handleRecordClick.bind(this, record)} style={exRecStyle} >
+            <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} style={exRecStyle} >
               <td><i style={pinStyle} className="ti-pin2"></i> {record.label_desc}</td>
               <td>{record.created}</td>
               <td>{record.modified}</td>
@@ -135,7 +139,7 @@ class PDSRecordGroup extends React.Component {
             </tr>
           );
         } else {
-          return <tr key={i} onClick={this.handleRecordClick.bind(this, record)} className="ExternalRecord" ><td>{record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>;
+          return <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} className="ExternalRecord" ><td>{record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>;
         }
       }, this);
     } else {
@@ -144,7 +148,8 @@ class PDSRecordGroup extends React.Component {
 
     var addButtonStyle = {
       marginLeft: '10px',
-      cursor: 'pointer',
+      marginTop: '10px',
+      float: 'right',
     };
 
     return (
@@ -153,9 +158,14 @@ class PDSRecordGroup extends React.Component {
              { this.renderLabelSelect() }
         </SkyLight>
         <h6 className="category">{this.props.pds.display_label}
-          <span onClick={() => this.refs.addRecordModal.show()} className="label label-icon label-success" style={addButtonStyle}>
-            <i className="ti-plus add-record"></i>
-          </span>
+          <FloatingActionButton
+            onClick={() => this.refs.addRecordModal.show()}
+            backgroundColor={'#7AC29A'}
+            mini={true}
+            style={addButtonStyle}
+          >
+            <ContentAdd/>
+          </FloatingActionButton>
         </h6>
         <div className="PDSRecords">
           { recordNodes ?
