@@ -1,6 +1,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
 import * as SubjectActions from '../../actions/subject';
+import RaisedButton from 'material-ui/lib/raised-button';
 import SubjectOrgSelectField from '../SubjectView/SubjectCard/SubjectOrgSelectField';
 import SubjectTextField from '../SubjectView/SubjectCard/SubjectTextField';
 import { connect } from 'react-redux';
@@ -76,6 +77,7 @@ class NewSubjectForm extends React.Component{
 
   render() {
     const orgs = this.props.orgs;
+    const newSub = this.props.subject.newSubject;
 
     // jscs:disable
     return (
@@ -93,13 +95,13 @@ class NewSubjectForm extends React.Component{
           </div>
           <div className="content">
           <form id="subject-form" onSubmit={this.handleSaveClick.bind(this)}>
-            <SubjectOrgSelectField new={true} value={null} />
+            <SubjectOrgSelectField new={true} value={newSub.organization} />
             <SubjectTextField new={true} label={'First Name'} value={null} skey={'first_name'}/>
             <SubjectTextField new={true} label={'Last Name'} value={null} skey={'last_name'} />
             <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id'} />
             <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id_validation'} />
             <SubjectTextField new={true} label={'Date of Birth'} value={null} skey={'dob'} />
-            <button className="btn btn-success new-subject-button">Add Subject</button>
+            <RaisedButton label={'Add Subject'} labelColor={'#7AC29A'} type="submit" style={{width:'100%'}}/>
           </form>
           {this.renderErrors()}
           </div>

@@ -2,13 +2,14 @@ import React from 'react';
 import Griddle from 'griddle-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import RaisedButton from 'material-ui/lib/raised-button';
 import BackButton from '../BackButton';
 import NewSubjectForm from './NewSubjectForm';
 import LoadingGif from '../LoadingGif';
 import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
 
-class SubjectMenu extends React.Component {
+class SubjectSelect extends React.Component {
 
   constructor(props) {
     super(props);
@@ -91,12 +92,11 @@ class SubjectMenu extends React.Component {
             <div id="toolbar">
               <ul className="list-unstyled">
                 <li>
-                  <input
-                    className="btn btn-success"
+                  <RaisedButton
+                    mini={true}
+                    labelColor={'#7AC29A'}
                     onClick={this.handleNewSubject.bind(this)}
-                    type="button"
-                    value="New Subject"
-                    onclick="location.href='/portal/dataentry/protocol/20/newsubject/'"
+                    label={'New Subject'}
                   />
                 </li>
               </ul>
@@ -133,4 +133,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(SubjectMenu);
+export default connect(mapStateToProps)(SubjectSelect);
