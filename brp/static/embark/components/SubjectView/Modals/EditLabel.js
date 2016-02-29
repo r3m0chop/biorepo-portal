@@ -27,6 +27,7 @@ class EditLabelModal extends React.Component {
         return label;
       }
     });
+
     record.label = label[0];
     record.label_desc = label[1];
     dispatch(RecordActions.setActiveRecord(record));
@@ -42,14 +43,21 @@ class EditLabelModal extends React.Component {
           <div className="more">
           </div>
           <div className="content">
-            <SelectField style={{width:'100%'}} onChange={this.onChange.bind(this)} value={this.props.activeRecord.label}>
+            <SelectField style={{ width:'100%' }}
+              onChange={this.onChange.bind(this)}
+              value={this.props.activeRecord.label}
+            >
               { labels.map(function (label, i) {
                   return <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>;
                 })
               }
             </SelectField>
           </div>
-          <RaisedButton style={{width: '100%'}} labelColor={Colors.red400} label="Cancel" onClick={this.handleCloseClick.bind(this)} />
+          <RaisedButton style={{ width: '100%' }}
+            labelColor={Colors.red400}
+            label="Cancel"
+            onClick={this.handleCloseClick.bind(this)}
+          />
         </div>
       </div>
     );
