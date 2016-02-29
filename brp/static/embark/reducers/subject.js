@@ -3,14 +3,25 @@ import { REQUEST_SUBJECTS, RECEIVE_SUBJECTS, SET_ACTIVE_SUBJECT,
          SHOW_INFO_PANEL, HIDE_INFO_PANEL, SHOW_ACTION_PANEL,
          HIDE_ACTION_PANEL, UPDATE_SUBJECT_SUCCESS, UPDATE_SUBJECT_REQUEST,
          SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE,
-         SET_ADD_SUBJECT_MODE } from '../actions/subject';
+         SET_ADD_SUBJECT_MODE, SET_NEW_SUBJECT, REQUEST_SUBJECT_SUCCESS } from '../actions/subject';
 import rootReducer from './index';
+
+const initialNewSubject = {
+  organization: null,
+  dob: null,
+  first_name: null,
+  last_name: null,
+  organization: null,
+  organization_subject_id: null,
+  organization_subject_id_validation: null,
+};
 
 const initialState = {
   isFetching: false,
   items: [],
   activeSubject: null,
-  newSubject: {},
+  activeSubjectRecords: [],
+  newSubject: initialNewSubject,
   isSaving: false,
   showInfoPanel: false,
   showActionPanel: false,
@@ -39,9 +50,21 @@ function subject(state = initialState, action) {
         items: action.subjects,
         isFetching: false,
       });
+    case REQUEST_SUBJECT_SUCCESS:
+      action.subject.organization_subject_id_validation = action.subject.organization_subject_id;
+      action.subject.organization_id = action.subject.organization;
+      return Object.assign({}, state, {
+        items: action.subjects,
+        isFetching: false,
+        activeSubject: action.subject,
+      });
     case SET_ACTIVE_SUBJECT:
       return Object.assign({}, state, {
         activeSubject: action.subject,
+      });
+    case SET_NEW_SUBJECT:
+      return Object.assign({}, state, {
+        newSubject: action.subject,
       });
     case SHOW_INFO_PANEL:
       return Object.assign({}, state, {
@@ -64,9 +87,12 @@ function subject(state = initialState, action) {
         isSaving: true,
       });
     case UPDATE_SUBJECT_SUCCESS:
+      action.subject.organization_subject_id_validation = action.subject.organization_subject_id;
+      action.subject.organization_id = action.subject.organization;
       return Object.assign({}, state, {
         isSaving: false,
         updateFormErrors: null,
+        activeSubject: action.subject,
       });
     case SET_LINK_MODE:
       if (action.mode != null) {
@@ -84,11 +110,13 @@ function subject(state = initialState, action) {
         return Object.assign({}, state, {
           addSubjectMode: action.mode,
           newFormErrors: null,
+          newSubject: initialNewSubject,
         });
       } else {
         return Object.assign({}, state, {
           addSubjectMode: !state.addSubjectMode,
           newFormErrors: null,
+          newSubject: initialNewSubject,
         });
       }
 

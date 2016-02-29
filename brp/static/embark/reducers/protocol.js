@@ -31,6 +31,7 @@ function protocol(state = initialState, action) {
     case RECEIVE_PROTOCOL_ORGS:
       return Object.assign({}, state, {
         orgs: action.organizations,
+        isFetching: false,
       });
 
     default:

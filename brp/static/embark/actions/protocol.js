@@ -3,9 +3,11 @@ import * as PDSActions from './pds';
 
 export const SET_ACTIVE_PROTOCOL = 'SET_ACTIVE_PROTOCOL';
 export const REQUEST_PROTOCOLS = 'REQUEST_PROTOCOLS';
+export const RECEIVE_PROTOCOLS = 'RECEIVE_PROTOCOLS';
+export const REQUEST_PROTOCOL = 'REQUEST_PROTOCOL';
+export const RECEIVE_PROTOCOL = 'RECEIVE_PROTOCOL';
 export const REQUEST_PROTOCOL_ORGS = 'REQUEST_PROTOCOL_ORGS';
 export const RECEIVE_PROTOCOL_ORGS = 'RECEIVE_PROTOCOL_ORGS';
-export const RECEIVE_PROTOCOLS = 'RECEIVE_PROTOCOLS';
 
 export function setActiveProtocol(protocol) {
   return dispatch => {
@@ -39,6 +41,22 @@ export function receiveProtocols(json) {
   };
 };
 
+export function requestProtocol() {
+  return {
+    type: REQUEST_PROTOCOL,
+  };
+}
+
+export function receiveProtocol(json) {
+  return dispatch => {
+    dispatch(setActiveProtocol(json));
+    dispatch({
+      type: RECEIVE_PROTOCOL,
+      protocol: json,
+    });
+  };
+};
+
 export function requestOrganizations() {
   return {
     type: REQUEST_PROTOCOL_ORGS,
@@ -65,6 +83,23 @@ export function fetchProtocols() {
     })
       .then(response => response.json())
       .then(json => dispatch(receiveProtocols(json)));
+  };
+}
+
+export function fetchProtocol(protocolId) {
+  // Fetch protocols authorized for authorized user.
+  return dispatch => {
+    dispatch(requestProtocol());
+    var url = 'api/protocols/' + protocolId;
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'token ' + token,
+      },
+    })
+      .then(response => response.json())
+      .then(json => dispatch(receiveProtocol(json)));
   };
 }
 
