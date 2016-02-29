@@ -3,6 +3,7 @@ import * as NotificationActions from './notification';
 
 export const REQUEST_PDS = 'REQUEST_PDS';
 export const RECEIVE_PDS = 'RECEIVE_PDS';
+export const SET_ACTIVE_PDS = 'SET_ACTIVE_PDS';
 
 function checkResponse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -27,6 +28,13 @@ export function receivePDS(json) {
     receivedAt: Date.now(),
   };
 };
+
+export function setActivePDS(pds) {
+  return {
+    type: SET_ACTIVE_PDS,
+    pds: pds,
+  };
+}
 
 export function fetchPDS(protocolId) {
   // Fetch all protocol data sources for the given Protocol
