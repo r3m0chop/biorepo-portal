@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import React from 'react';
 import App from './containers/App';
 import ProjectMenu from './components/ProjectMenu';
-import SubjectSelect  from './components/SubjectMenu';
+import SubjectSelect  from './components/SubjectSelect';
 import SubjectView  from './components/SubjectView';
 import { Provider } from 'react-redux';
 import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
