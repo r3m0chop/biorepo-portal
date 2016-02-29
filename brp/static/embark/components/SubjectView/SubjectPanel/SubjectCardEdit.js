@@ -71,7 +71,7 @@ class SubjectCardEdit extends React.Component{
       const fullName = subject.first_name + ' ' + subject.last_name;
       const orgs = this.props.protocol.orgs;
       return (
-          <div className="col-md-5 col-sm-6" style={{ marginLeft:'-120px' }}>
+          <div className="col-md-4 col-sm-6">
             <div className="card">
               <div className="more">
               </div>

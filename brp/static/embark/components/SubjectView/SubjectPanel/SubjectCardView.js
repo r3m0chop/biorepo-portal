@@ -16,7 +16,7 @@ class SubjectCardView extends React.Component{
     const subject = this.props.subject.activeSubject;
     const editUrl = this.props.path + '/edit';
     return (
-      <div className="col-md-5 col-sm-6" style={{ marginLeft:'-120px' }}>
+      <div className="col-md-4 col-sm-6">
         <div className="card">
           <div className="more">
             <Link to={editUrl} type="button" className="btn btn-simple btn-icon btn-danger" >
