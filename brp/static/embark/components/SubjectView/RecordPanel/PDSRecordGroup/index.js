@@ -26,7 +26,6 @@ class PDSRecordGroup extends React.Component {
       dispatch(SubjectActions.setLinkMode());
     } else {
 
-      // dispatch(SubjectActions.showActionPanel());
       dispatch(RecordActions.setActiveRecord(record));
       dispatch(PDSActions.setActivePDS(pds));
     }
@@ -51,6 +50,12 @@ class PDSRecordGroup extends React.Component {
     if (this.props.records.length == 0) {
       dispatch(RecordActions.fetchRecords(this.props.pds, this.props.subject.id));
     }
+  }
+
+  componentWillUnmount() {
+    // Make sure that record state returns to its initialState once this view unmounts
+    const { dispatch } = this.props;
+    dispatch(RecordActions.clearRecordState());
   }
 
   render() {

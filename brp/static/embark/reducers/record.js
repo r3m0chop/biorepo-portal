@@ -1,5 +1,5 @@
 import { SET_ACTIVE_RECORD, SET_EDIT_LABEL_MODE, SET_SELECTED_LABEL,
-         RECEIVE_RECORDS, REQUEST_RECORDS } from '../actions/record';
+         RECEIVE_RECORDS, REQUEST_RECORDS, CLEAR_RECORD_STATE } from '../actions/record';
 
 const initialState = {
   isFetching: false,
@@ -35,11 +35,13 @@ function record(state = initialState, action) {
       return Object.assign({}, state, {
         isFetching: true,
         items: [],
-      })
+      });
     case SET_SELECTED_LABEL:
       return Object.assign({}, state, {
         selectedLabel: action.selectedLabel,
       });
+    case CLEAR_RECORD_STATE:
+      return initialState;
     default:
       return state;
   }

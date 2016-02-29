@@ -6,6 +6,13 @@ export const RECEIVE_RECORDS = 'RECEIVE_RECORDS';
 export const REQUEST_RECORDS = 'REQUEST_RECORDS';
 export const SET_EDIT_LABEL_MODE = 'SET_EDIT_LABEL_MODE';
 export const SET_SELECTED_LABEL = 'SET_SELECTED_LABEL';
+export const CLEAR_RECORD_STATE = 'CLEAR_RECORD_STATE';
+
+export function clearRecordState() {
+  return {
+    type: CLEAR_RECORD_STATE,
+  };
+};
 
 export function setActiveRecord(record) {
   return {
