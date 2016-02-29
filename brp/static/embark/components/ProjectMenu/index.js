@@ -11,7 +11,11 @@ class ProjectMenu extends React.Component {
   }
 
   componentDidMount() {
-    this.props.dispatch(ProtocolActions.setActiveProtocol(null));
+    const { dispatch } = this.props
+    dispatch(ProtocolActions.setActiveProtocol(null));
+    if (this.props.protocol.items.length == 0 && !this.props.protocol.isFetching) {
+      dispatch(ProtocolActions.fetchProtocols());
+    }
   }
 
   handleClick(protocol) {
@@ -24,7 +28,7 @@ class ProjectMenu extends React.Component {
         <div>
           <p>Welcome Back</p>
           <p><i>Select a project for data entry</i></p>
-          { this.props.protocols.items.map(function (protocol, i) {
+          { this.props.protocol.items.map(function (protocol, i) {
             var url = 'dataentry/protocol/' + protocol.id;
             return (
                 <div key={i} className="lg-col-12">
@@ -44,8 +48,9 @@ class ProjectMenu extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    protocols: {
+    protocol: {
       items: state.protocol.items,
+      isFetching: state.protocol.isFetching,
     },
   };
 }
