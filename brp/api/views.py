@@ -192,23 +192,44 @@ class ProtocolViewSet(viewsets.ModelViewSet):
         subject = json.loads(request.body)
         # See if subject exists
         s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+        o_rh = ServiceClient.get_rh_for(record_type=ServiceClient.ORGANIZATION)
         try:
             ehb_sub = s_rh.get(id=subject['id'])
+            org = Organization.objects.get(id=subject['organization_id'])
         except:
             return Response("", status=404)
+        ehb_org = org.getEhbServiceInstance()
         ehb_sub.old_subject = deepcopy(ehb_sub)
         ehb_sub.first_name = subject['first_name']
         ehb_sub.last_name = subject['last_name']
         ehb_sub.organization_subject_id = subject['organization_subject_id']
-        ehb_sub.organization_id = subject['organization_id']
+        ehb_sub.organization_id = ehb_org.id
         ehb_sub.dob = datetime.strptime(subject['dob'], '%Y-%m-%d')
         update = s_rh.update(ehb_sub)[0]
         if update['errors']:
             return Response(json.dumps({'error': 'Unable to update subject'}), status=400)
+        sub = json.loads(Subject.json_from_identity(update['subject']))
+        sub['organization_name'] = org.name
         return Response(
-            [],
+            sub,
             headers={'Access-Control-Allow-Origin': '*'}
         )
+
+    @detail_route(methods=['get'])
+    def get_subject(self, request, pk, subject, *args, **kwargs):
+        """
+        Return a single requested subject
+        """
+        s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+        o_rh = ServiceClient.get_rh_for(record_type=ServiceClient.ORGANIZATION)
+        try:
+            subject = s_rh.get(id=subject)
+            organization = o_rh.get(id=subject.organization_id)
+        except:
+            return Response("", status=404)
+        sub = json.loads(Subject.json_from_identity(subject))
+        sub['organization_name'] = organization.name
+        return Response(sub)
 
     @list_route()
     def organizations(self, request, *args, **kwargs):
@@ -256,16 +277,18 @@ class ProtocolViewSet(viewsets.ModelViewSet):
                 try:
                     config = json.loads(ExIdSource.driver_configuration)
                     if 'sort_on' in config.keys():
-                        er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
-                        lbl = er_label_rh.get(id=config['sort_on'])
+                        # er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
+                        # lbl = er_label_rh.get(id=config['sort_on'])
+                        lbl = ''
                         addl_id_column = lbl
                 except:
                     pass
 
             for sub in subs:
                 sub['external_records'] = []
-                for pds in protocoldatasources:
-                    sub['external_records'].extend(self.getExternalRecords(pds, sub))
+                # TODO We are no longer actively getting external records
+                # for pds in protocoldatasources:
+                    # sub['external_records'].extend(self.getExternalRecords(pds, sub))
                 if manageExternalIDs:
                     # Break out external ids into a separate object for ease of use
                     sub['external_ids'] = []
@@ -412,13 +435,13 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
         if p.protocol.isUserAuthorized(request.user):
             res = ServiceClient.ext_rec_client.query({
                 "subject_id": kwargs['subject'],
-                "external_system_id": p.data_source.ehb_service_es_id
+                "external_system_id": p.data_source.ehb_service_es_id,
+                "path": p.path
             })[0]
             if res["success"]:
                 for ex_rec in res["external_record"]:
                     t = eHBExternalRecordSerializer(ex_rec).data
-                    t['label'] = ServiceClient.ext_rec_label_client.get(id=t['label_id'])['label']
-
                     ex_recs.append(t)
 
-        return Response(ex_recs)
+        return Response(sorted(
+            ex_recs, key=lambda ex_recs: ex_recs["created"]))

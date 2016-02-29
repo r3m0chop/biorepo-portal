@@ -15,7 +15,8 @@ protocol_subjects = views.ProtocolViewSet.as_view({
 })
 protocol_subject = views.ProtocolViewSet.as_view({
     'post': 'add_subject',
-    'put': 'update_subject'
+    'put': 'update_subject',
+    'get': 'get_subject'
 })
 protocol_data_sources = views.ProtocolViewSet.as_view({
     'get': 'data_sources'
