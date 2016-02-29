@@ -2,8 +2,10 @@
 import React from 'react';
 import * as SubjectActions from '../../actions/subject';
 import RaisedButton from 'material-ui/lib/raised-button';
-import SubjectOrgSelectField from '../SubjectView/SubjectCard/SubjectOrgSelectField';
-import SubjectTextField from '../SubjectView/SubjectCard/SubjectTextField';
+import Divider from 'material-ui/lib/divider';
+import * as Colors from 'material-ui/lib/styles/colors';
+import SubjectOrgSelectField from '../SubjectView/SubjectPanel/SubjectOrgSelectField';
+import SubjectTextField from '../SubjectView/SubjectPanel/SubjectTextField';
 import { connect } from 'react-redux';
 
 class NewSubjectForm extends React.Component{
@@ -86,12 +88,6 @@ class NewSubjectForm extends React.Component{
         <div className="card">
           <h6 className="category">Add New Subject</h6>
           <div className="more">
-          <a
-            type="button"
-            onClick={this.handleCloseClick.bind(this)}
-            className="btn btn-simple btn-icon btn-danger">
-          <i className="ti-close"></i>
-          </a>
           </div>
           <div className="content">
           <form id="subject-form" onSubmit={this.handleSaveClick.bind(this)}>
@@ -102,6 +98,8 @@ class NewSubjectForm extends React.Component{
             <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id_validation'} />
             <SubjectTextField new={true} label={'Date of Birth'} value={null} skey={'dob'} />
             <RaisedButton label={'Add Subject'} labelColor={'#7AC29A'} type="submit" style={{width:'100%'}}/>
+            <Divider />
+            <RaisedButton label={'Cancel'} labelColor={Colors.red400} onClick={this.handleCloseClick.bind(this)} style={{width:'100%'}}/>
           </form>
           {this.renderErrors()}
           </div>

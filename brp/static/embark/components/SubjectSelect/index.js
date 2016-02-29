@@ -19,7 +19,10 @@ class SubjectSelect extends React.Component {
     const { dispatch } = this.props;
 
     // Check to see if subjects are loaded, if not fetch them
-    if (this.props.subject.items.length == 0) {
+    if (
+      (!this.props.subject.items || this.props.subject.items.length == 0) &&
+        this.props.subject.isFetching == false
+    ) {
       dispatch(SubjectActions.fetchSubjects(this.props.params.id));
     }
   }
@@ -66,16 +69,20 @@ class SubjectSelect extends React.Component {
 
       // Transform subjects into Griddle friendly format
       // jscs:disable
-      var subs = subjects.map(function (sub) {
-        return {
-          'Organization': sub.organization_name,
-          'MRN': sub.organization_subject_id,
-          'First Name': sub.first_name,
-          'Last Name': sub.last_name,
-          'Birth Date': sub.dob,
-          'subject': sub
-        };
-      });
+      var subs = [];
+      if (subjects) {
+        var subs = subjects.map(function (sub) {
+          return {
+            'Organization': sub.organization_name,
+            'MRN': sub.organization_subject_id,
+            'First Name': sub.first_name,
+            'Last Name': sub.last_name,
+            'Birth Date': sub.dob,
+            'subject': sub
+          };
+        });
+      }
+
       // jscs:enable
       return (
         protocol ?
@@ -129,6 +136,7 @@ function mapStateToProps(state) {
     subject: {
       items: state.subject.items,
       addSubjectMode: state.subject.addSubjectMode,
+      isFetching: state.subject.isFetching,
     },
   };
 }
