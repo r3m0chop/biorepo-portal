@@ -18,9 +18,9 @@ class SubjectCardEdit extends React.Component{
   }
 
   restoreSubject() {
-
     // Restores the current Subject view with server's subject state
-    this.props.dispatch(SubjectActions.fetchSubjects(this.props.protocol.activeProtocol.id));
+    this.props.dispatch(SubjectActions.fetchSubject(this.props.protocol.activeProtocol.id,
+      this.props.subject.activeSubject.id));
   }
 
   handleSaveClick(e) {
