@@ -17,7 +17,9 @@ class App extends React.Component {
   componentDidMount() {
     const { dispatch } = this.props;
     this._notificationSystem = this.refs.notificationSystem;
-    dispatch(ProtocolActions.fetchProtocols());
+    if (!this.props.params.prot_id || !this.props.protocol.isFetching) {
+      dispatch(ProtocolActions.fetchProtocols());
+    }
   }
 
   componentWillReceiveProps() {
@@ -67,6 +69,7 @@ function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
+      isFetching: state.protocol.isFetching,
     },
     notifications: {
       items: state.notification.items,
