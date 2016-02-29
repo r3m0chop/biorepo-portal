@@ -1,6 +1,8 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
 import { connect } from 'react-redux';
+import SelectField from 'material-ui/lib/select-field';
+import MenuItem from 'material-ui/lib/menus/menu-item';
 import * as SubjectActions from '../../../actions/subject';
 
 class SubjectOrgSelectField extends React.Component{
@@ -8,34 +10,34 @@ class SubjectOrgSelectField extends React.Component{
     super(props);
   }
 
-  onChange(e) {
-
+  onChange(e, index, value) {
     // Check to see if we're editing an existing subject
     if (!this.props.new) {
-
       // Changing the input fields should update the state of the active subject
       var sub = this.props.subject;
-      sub.organization_id = e.target.value;
+      sub.organization_id = value;
       this.props.dispatch(SubjectActions.setActiveSubject(sub));
     } else {
-      var sub = this.props.newSubject;
-      sub.organization = e.target.value;
+      var new_sub = this.props.newSubject;
+      new_sub.organization = value;
+      this.props.dispatch(SubjectActions.setNewSubject(new_sub));
     }
   }
 
   render() {
     const orgs = this.props.orgs;
     return (
-      <div className="form-group">
-        <select onChange={this.onChange.bind(this)} value={this.props.value}>
-          <option value="-1">--</option>
-          { orgs ?
-            orgs.map(function (org, i) {
-              return <option key={i} value={org.id}>{org.name}</option>;
-            }) : <option/>
-          }
-        </select>
-      </div>
+      <SelectField
+        onChange={this.onChange.bind(this)}
+        style={{width:'100%'}}
+        value={this.props.value}
+      >
+        { orgs ?
+          orgs.map(function (org, i) {
+            return <MenuItem key={i} value={org.id} primaryText={org.name} />;
+          }) : <MenuItem/>
+        }
+      </SelectField>
     );
   }
 }

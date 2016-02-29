@@ -1,4 +1,11 @@
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
+import { connect } from 'react-redux';
+import SelectField from 'material-ui/lib/select-field';
+import MenuItem from 'material-ui/lib/menus/menu-item';
+import RaisedButton from 'material-ui/lib/raised-button';
+import * as RecordActions from '../../../actions/record';
+import * as Colors from 'material-ui/lib/styles/colors';
 
 class EditLabelModal extends React.Component {
 
@@ -6,17 +13,61 @@ class EditLabelModal extends React.Component {
     super(props);
   }
 
+  handleCloseClick() {
+    const { dispatch } = this.props;
+    dispatch(RecordActions.setEditLabelMode());
+  }
+
+  onChange(e, index, value) {
+    var record =  this.props.activeRecord;
+    const { dispatch } = this.props;
+
+    var label = this.props.activePDS.driver_configuration.labels.find(function (label) {
+      if (label[0] == value) {
+        return label;
+      }
+    });
+    record.label = label[0];
+    record.label_desc = label[1];
+    dispatch(RecordActions.setActiveRecord(record));
+    dispatch(RecordActions.setEditLabelMode());
+  }
+
   render() {
+    const labels = this.props.activePDS.driver_configuration.labels;
     return (
-      <div className="col-md-8 col-sm-2">
+      <div className="col-sm-2 edit-label-modal">
         <div className="card">
-          <div className="content">
-            Edit Label
+          <h6 className="category">Edit Record Label</h6>
+          <div className="more">
           </div>
+          <div className="content">
+            <SelectField style={{width:'100%'}} onChange={this.onChange.bind(this)} value={this.props.activeRecord.label}>
+              { labels.map(function (label, i) {
+                  return <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>;
+                })
+              }
+            </SelectField>
+          </div>
+          <RaisedButton style={{width: '100%'}} labelColor={Colors.red400} label="Cancel" onClick={this.handleCloseClick.bind(this)} />
         </div>
       </div>
     );
   }
 }
 
-export default EditLabelModal;
+function mapStateToProps(state) {
+  return {
+    protocol: {
+      items: state.protocol.items,
+      activeProtocol: state.protocol.activeProtocol,
+    },
+    subject: state.subject.activeSubject,
+    activeRecord: state.record.activeRecord,
+    linkMode: state.subject.linkMode,
+    selectedLabel: state.record.selectedLabel,
+    activePDS: state.pds.activePDS,
+  };
+}
+
+export default connect(mapStateToProps)(EditLabelModal);

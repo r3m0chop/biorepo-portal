@@ -3,9 +3,11 @@
 import React from 'react';
 import { Link, History } from 'react-router';
 import { connect } from 'react-redux';
+import RaisedButton from 'material-ui/lib/raised-button';
 import SubjectTextField from './SubjectTextField';
 import SubjectOrgSelectField from './SubjectOrgSelectField';
 import * as SubjectActions from '../../../actions/subject';
+import * as Colors from 'material-ui/lib/styles/colors';
 import ExternalIDs from './ExternalIds';
 import LoadingGif from '../../LoadingGif';
 
@@ -69,7 +71,7 @@ class SubjectCardEdit extends React.Component{
       const fullName = subject.first_name + ' ' + subject.last_name;
       const orgs = this.props.protocol.orgs;
       return (
-          <div className="col-md-4 col-sm-6">
+          <div className="col-md-5 col-sm-6" style={{ marginLeft:'-120px' }}>
             <div className="card">
               <div className="more">
               </div>
@@ -84,8 +86,18 @@ class SubjectCardEdit extends React.Component{
                 <ExternalIDs externalIds={subject.external_ids} />
                 { !this.props.savingSubject ?
                   <div className="subject-form-button-group">
-                    <button className="btn btn-success" type="submit">Save</button>
-                    <button style={{ marginLeft:'10px' }} type="button" onClick={this.handleCancelClick.bind(this)} className="btn btn-danger">Close</button>
+                    <RaisedButton
+                      labelColor={'#7AC29A'}
+                      mini={true}
+                      type="submit"
+                      label={'Save'}
+                    />
+                    <RaisedButton
+                      onClick={this.handleCancelClick.bind(this)}
+                      labelColor={Colors.red400}
+                      style={{ marginLeft:'10px' }}
+                      mini={true} label={'Close'}
+                    />
                   </div>
                   :
                   <LoadingGif/>

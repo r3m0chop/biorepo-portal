@@ -4,24 +4,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SkyLight from 'react-skylight';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import ContentAdd from 'material-ui/lib/svg-icons/content/add';
-import * as SubjectActions from '../../../actions/subject';
-import * as RecordActions from '../../../actions/record';
-import * as PDSActions from '../../../actions/pds';
+import LoadingGif from '../../../LoadingGif';
+import NewRecordLabelSelect from './NewRecordLabelSelect';
+import * as SubjectActions from '../../../../actions/subject';
+import * as RecordActions from '../../../../actions/record';
+import * as PDSActions from '../../../../actions/pds';
 
 class PDSRecordGroup extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  addRecord() {
-    var url = '/portal/dataentry/protocoldatasource/26/subject/5016/create/?label_id=';
-    var url = '/dataentry/protocoldatasource/' +
-      this.props.pds.id +
-      '/subject/' +
-      this.props.subject.id +
-      '/create/';
   }
 
   handleRecordClick(record, pds) {
@@ -34,23 +28,8 @@ class PDSRecordGroup extends React.Component {
 
       // dispatch(SubjectActions.showActionPanel());
       dispatch(RecordActions.setActiveRecord(record));
-      dispatch(PDSActions.setActivePDS(pds))
+      dispatch(PDSActions.setActivePDS(pds));
     }
-  }
-
-  handleRecordLabelSelect(e) {
-    const { dispatch } = this.props;
-    dispatch(RecordActions.setSelectedLabel(e.target.value));
-  }
-
-  handleNewRecordClick() {
-    var url = '/dataentry/protocoldatasource/';
-    url += this.props.pds.id;
-    url += '/subject/';
-    url += this.props.subject.id;
-    url += '/create/?label_id=';
-    url += this.props.selectedLabel;
-    window.location.href = url;
   }
 
   handleViewRecordClick() {
@@ -67,38 +46,11 @@ class PDSRecordGroup extends React.Component {
     dispatch(RecordActions.setEditLabelMode());
   }
 
-  renderLabelSelect() {
-    const labels = this.props.pds.driver_configuration.labels;
-
-    var selectStyle = {
-      marginLeft: '10px',
-    };
-
-    var buttonStyle = {
-      width:'auto',
-      marginTop:'20px',
-      marginLeft: '25%',
-    };
-
-    return (
-      <div>
-        <div>
-          <span>Select label for {this.props.pds.display_label} Record:</span>
-          <select onChange={this.handleRecordLabelSelect.bind(this)} style={selectStyle}>
-            <option>---</option>
-            { labels.map(function (label, i) {
-              return (<option key={i} value={label[0]}>{label[1]}</option>);
-            })}
-          </select>
-        </div>
-        <div>
-          <button style={buttonStyle} onClick={this.handleNewRecordClick.bind(this)}
-            className="btn btn-success">
-            Create New
-          </button>
-        </div>
-      </div>
-    );
+  componentDidMount() {
+    const { dispatch } = this.props;
+    if (this.props.records.length == 0) {
+      dispatch(RecordActions.fetchRecords(this.props.pds, this.props.subject.id));
+    }
   }
 
   render() {
@@ -125,12 +77,21 @@ class PDSRecordGroup extends React.Component {
     var pinStyle = {
       color: 'coral',
     };
-    if (this.props.records.length != 0) {
-      var recordNodes = this.props.records.map(function (record, i) {
+
+    const pds = this.props.pds;
+    var records = this.props.record.items.filter(function (record) {
+      if (pds.id == record.pds) {
+        return record;
+      }
+    });
+
+    var recordNodes = null;
+    if (records.length != 0) {
+      var recordNodes = records.map(function (record, i) {
         if (this.props.activeRecord != null && (this.props.activeRecord.id == record.id)) {
           return (
             <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} style={exRecStyle} >
-              <td><i style={pinStyle} className="ti-pin2"></i> {record.label_desc}</td>
+              <td>{record.label_desc}</td>
               <td>{record.created}</td>
               <td>{record.modified}</td>
               <td className="row-action" onClick={this.handleEditRecordClick.bind(this)}>Label</td>
@@ -142,9 +103,7 @@ class PDSRecordGroup extends React.Component {
           return <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} className="ExternalRecord" ><td>{record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>;
         }
       }, this);
-    } else {
-      recordNodes = null;
-    }
+    };
 
     var addButtonStyle = {
       marginLeft: '10px',
@@ -155,7 +114,7 @@ class PDSRecordGroup extends React.Component {
     return (
       <div>
         <SkyLight ref="addRecordModal" dialogStyles={modalStyles}>
-             { this.renderLabelSelect() }
+          <NewRecordLabelSelect pds={this.props.pds}/>
         </SkyLight>
         <h6 className="category">{this.props.pds.display_label}
           <FloatingActionButton
@@ -176,7 +135,7 @@ class PDSRecordGroup extends React.Component {
               <tbody>
                 { recordNodes }
               </tbody>
-            </table> : <div>No Records</div>
+            </table> : this.props.record.isFetching ? <LoadingGif /> : <div>No Records</div>
           }
         </div>
       </div>
@@ -193,6 +152,10 @@ function mapStateToProps(state) {
     protocol: {
       items: state.protocol.items,
       activeProtocol: state.protocol.activeProtocol,
+    },
+    record: {
+      items: state.record.items,
+      isFetching: state.record.isFetching,
     },
     subject: state.subject.activeSubject,
     activeRecord: state.record.activeRecord,

@@ -5,7 +5,7 @@ import * as SubjectActions from '../../../actions/subject';
 import SubjectCardEdit from './SubjectCardEdit';
 import SubjectCardView from './SubjectCardView';
 
-class SubjectCard extends React.Component {
+class SubjectPanel extends React.Component {
 
   constructor(props) {
     super(props);
@@ -21,4 +21,4 @@ class SubjectCard extends React.Component {
   }
 }
 
-export default connect()(SubjectCard);
+export default connect()(SubjectPanel);
