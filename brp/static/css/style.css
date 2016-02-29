@@ -230,3 +230,14 @@ td.row-action:hover {
     color: #baa76b;
     cursor: pointer;
 }
+.edit-label-modal {
+    left: 50%;
+    margin-left: -5em;
+    margin-bottom: 3em;
+    position: fixed;
+    z-index:1000;
+}
+.edit-label-modal>.card {
+    padding: 15px;
+    box-shadow: 3px 3px 14px rgba(204, 197, 185, 0.5);
+}
