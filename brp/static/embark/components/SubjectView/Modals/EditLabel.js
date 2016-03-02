@@ -29,8 +29,13 @@ class EditLabelModal extends React.Component {
     });
 
     record.label = label[0];
+    record.label_id = label[0];
     record.label_desc = label[1];
     dispatch(RecordActions.setActiveRecord(record));
+    dispatch(RecordActions.updateRecord(
+      this.props.activePDS.id,
+      this.props.subject.id,
+      record));
     dispatch(RecordActions.setEditLabelMode());
   }
 
