@@ -29,7 +29,7 @@ class SubjectOrgSelectField extends React.Component{
     return (
       <SelectField
         onChange={this.onChange.bind(this)}
-        style={{width:'100%'}}
+        style={{ width:'100%' }}
         value={this.props.value}
       >
         { orgs ?
