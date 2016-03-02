@@ -216,7 +216,7 @@ td.row-action:hover {
 .link-banner {
     position: fixed;
     top: 92px;
-    z-index:1000;
+    z-index:98;
     margin-left:-20px;
     background-color: #FFE28C;
     color: #BB992F;
