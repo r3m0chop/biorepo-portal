@@ -75,6 +75,7 @@ export function receiveRecords(pds, json) {
         record.label_desc = label[1];
       }
     });
+
     return record;
   });
 
