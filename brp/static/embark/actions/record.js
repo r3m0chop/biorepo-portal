@@ -7,6 +7,8 @@ export const REQUEST_RECORDS = 'REQUEST_RECORDS';
 export const SET_EDIT_LABEL_MODE = 'SET_EDIT_LABEL_MODE';
 export const SET_SELECTED_LABEL = 'SET_SELECTED_LABEL';
 export const CLEAR_RECORD_STATE = 'CLEAR_RECORD_STATE';
+export const SET_PENDING_LINKED_RECORD = 'SET_PENDING_LINKED_RECORD';
+export const SET_SELECTED_LINK_TYPE = 'SET_SELECTED_LINK_TYPE';
 
 export function clearRecordState() {
   return {
@@ -18,6 +20,20 @@ export function setActiveRecord(record) {
   return {
     type: SET_ACTIVE_RECORD,
     activeRecord: record,
+  };
+}
+
+export function setPendingLinkedRecord(record) {
+  return {
+    type: SET_PENDING_LINKED_RECORD,
+    record: record,
+  };
+}
+
+export function setSelectedLinkType(linkId) {
+  return {
+    type: SET_SELECTED_LINK_TYPE,
+    linkId: linkId,
   };
 }
 

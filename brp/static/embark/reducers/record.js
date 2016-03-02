@@ -1,12 +1,15 @@
 import { SET_ACTIVE_RECORD, SET_EDIT_LABEL_MODE, SET_SELECTED_LABEL,
-         RECEIVE_RECORDS, REQUEST_RECORDS, CLEAR_RECORD_STATE } from '../actions/record';
+         RECEIVE_RECORDS, REQUEST_RECORDS, CLEAR_RECORD_STATE,
+         SET_PENDING_LINKED_RECORD, SET_SELECTED_LINK_TYPE } from '../actions/record';
 
 const initialState = {
   isFetching: false,
   items: [],
   activeRecord: null,
+  pendingLinkedRecord: null,
   editLabelMode: false,
   selectedLabel: null,
+  selectedLinkType: null,
 };
 
 function record(state = initialState, action) {
@@ -39,6 +42,14 @@ function record(state = initialState, action) {
     case SET_SELECTED_LABEL:
       return Object.assign({}, state, {
         selectedLabel: action.selectedLabel,
+      });
+    case SET_PENDING_LINKED_RECORD:
+      return Object.assign({}, state, {
+        pendingLinkedRecord: action.record,
+      });
+    case SET_SELECTED_LINK_TYPE:
+      return Object.assign({}, state, {
+        selectedLinkType: action.linkId,
       });
     case CLEAR_RECORD_STATE:
       return initialState;

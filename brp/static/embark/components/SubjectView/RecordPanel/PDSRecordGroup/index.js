@@ -8,6 +8,7 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import ContentAdd from 'material-ui/lib/svg-icons/content/add';
 import LoadingGif from '../../../LoadingGif';
 import NewRecordLabelSelect from './NewRecordLabelSelect';
+import NewRecordLink from './NewRecordLink';
 import * as SubjectActions from '../../../../actions/subject';
 import * as RecordActions from '../../../../actions/record';
 import * as PDSActions from '../../../../actions/pds';
@@ -22,8 +23,14 @@ class PDSRecordGroup extends React.Component {
     const dispatch = this.props.dispatch;
 
     if (this.props.linkMode) {
-      alert('linking ' + this.props.activeRecord.id + ' with ' + record.id);
-      dispatch(SubjectActions.setLinkMode());
+      if (this.props.activeRecord.id == record.id) {
+        dispatch(SubjectActions.setLinkMode());
+        return;
+      };
+
+      console.log('linking ' + this.props.activeRecord.id + ' with ' + record.id);
+      dispatch(RecordActions.setPendingLinkedRecord(record));
+      this.refs.addLinkModal.show();
     } else {
 
       dispatch(RecordActions.setActiveRecord(record));
@@ -120,6 +127,9 @@ class PDSRecordGroup extends React.Component {
       <div>
         <SkyLight ref="addRecordModal" dialogStyles={modalStyles}>
           <NewRecordLabelSelect pds={this.props.pds}/>
+        </SkyLight>
+        <SkyLight ref="addLinkModal" dialogStyles={modalStyles}>
+          <NewRecordLink pds={this.props.pds}/>
         </SkyLight>
         <h6 className="category">{this.props.pds.display_label}
           <FloatingActionButton
