@@ -30,6 +30,10 @@ pds_subjects = views.ProtocolDataSourceViewSet.as_view({
 subject_records = views.ProtocolDataSourceViewSet.as_view({
     'get': 'subject_records'
 })
+subject_record = views.ProtocolDataSourceViewSet.as_view({
+    'get': 'get_subject_record',
+    'put': 'update_subject_record'
+})
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include the login URLs for the browsable API
@@ -50,6 +54,10 @@ urlpatterns = [
         r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/(?P<subject>[0-9]+)/records/$',
         subject_records,
         name='pds-subject-record-list'),
+    url(
+        r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/(?P<subject>[0-9]+)/record/(?P<record_id>[0-9]+)/$',
+        subject_record,
+        name='pds-subject-record'),
     url(
         r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/$',
         pds_subjects,

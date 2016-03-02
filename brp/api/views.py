@@ -445,3 +445,44 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
 
         return Response(sorted(
             ex_recs, key=lambda ex_recs: ex_recs["created"]))
+
+    @detail_route(methods=['get'])
+    def get_subject_record(self, request, *args, **kwargs):
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            res = ServiceClient.ext_rec_client.get(id=kwargs['record_id'])
+            d = dict(eHBExternalRecordSerializer(res).data)
+            return Response(d)
+        else:
+            return Response(
+                {"detail": "You are not authorized to view records from this protocol"},
+                status=403
+            )
+
+    @detail_route(methods=['put'])
+    def update_subject_record(self, request, *args, **kwargs):
+        '''
+        Updates the subject record. Currently only changing the records label is
+        supported.
+
+        If successful the updated external record is returned
+        '''
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            ex_rec = json.loads(request.body)
+            rec = ServiceClient.ext_rec_client.get(id=ex_rec['id'])
+            rec.label_id = ex_rec['label_id']
+            rec.modified = datetime.now()
+            res = ServiceClient.ext_rec_client.update(rec)[0]
+            if res['success']:
+                return Response(dict(eHBExternalRecordSerializer(res['external_record']).data))
+            else:
+                return Response({
+                    'success': res['success'],
+                    'errors': res['errors']},
+                    status=422)
+        else:
+            return Response(
+                {"detail": "You are not authorized to view records from this protocol"},
+                status=403
+            )
