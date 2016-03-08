@@ -1,3 +1,4 @@
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
 import ProjectMenu from '../components/ProjectMenu';
 import NotificationSystem from 'react-notification-system';
