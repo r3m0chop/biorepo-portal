@@ -432,12 +432,20 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
         """
         p = self.get_object()
         ex_recs = []
+        
         if p.protocol.isUserAuthorized(request.user):
+            try:
+                ProtocolUserCredentials.objects.get(
+                    protocol=p.protocol, data_source=p, user=request.user)
+            except ProtocolUserCredentials.DoesNotExist:
+                return Response([], status=403)
+
             res = ServiceClient.ext_rec_client.query({
                 "subject_id": kwargs['subject'],
                 "external_system_id": p.data_source.ehb_service_es_id,
                 "path": p.path
             })[0]
+
             if res["success"]:
                 for ex_rec in res["external_record"]:
                     t = eHBExternalRecordSerializer(ex_rec).data

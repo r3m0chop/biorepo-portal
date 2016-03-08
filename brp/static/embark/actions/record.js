@@ -151,6 +151,11 @@ export function updateRecord(pdsId, subjectId, record) {
 
 export function fetchRecords(pds, subjectId) {
   return dispatch => {
+    // If not authorized don't bother requesting records
+    if (!pds.authorized) {
+      return dispatch(receiveRecords(pds, []));
+    };
+
     dispatch(requestRecords());
     var url = 'api/protocoldatasources/';
     url += pds.id;
