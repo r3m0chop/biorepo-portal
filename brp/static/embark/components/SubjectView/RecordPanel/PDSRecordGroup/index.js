@@ -132,17 +132,28 @@ class PDSRecordGroup extends React.Component {
           <NewRecordLink pds={this.props.pds}/>
         </SkyLight>
         <h6 className="category">{this.props.pds.display_label}
+          { this.props.pds.authorized ?
+            <FloatingActionButton
+              onClick={() => this.refs.addRecordModal.show()}
+              backgroundColor={'#7AC29A'}
+              mini={true}
+              style={addButtonStyle}
+            >
+              <ContentAdd/>
+            </FloatingActionButton>
+          :
           <FloatingActionButton
-            onClick={() => this.refs.addRecordModal.show()}
-            backgroundColor={'#7AC29A'}
+            disabled={true}
             mini={true}
             style={addButtonStyle}
           >
             <ContentAdd/>
-          </FloatingActionButton>
+          </FloatingActionButton> }
+
         </h6>
         <div className="PDSRecords">
-          { recordNodes ?
+          { this.props.pds.authorized ?
+            recordNodes ?
             <table className="table table-striped">
               <thead>
                 <tr><th>Record</th><th>Created</th><th>Modified</th></tr>
@@ -150,7 +161,8 @@ class PDSRecordGroup extends React.Component {
               <tbody>
                 { recordNodes }
               </tbody>
-            </table> : this.props.record.isFetching ? <LoadingGif /> : <div>No Records</div>
+            </table> : this.props.record.isFetching ? <LoadingGif /> : <div>No Records</div> :
+            <div> Not authorized for this Protocol Data Source </div>
           }
         </div>
       </div>
