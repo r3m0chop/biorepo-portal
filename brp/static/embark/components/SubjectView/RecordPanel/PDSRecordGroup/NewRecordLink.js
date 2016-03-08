@@ -4,6 +4,7 @@ import SelectField from 'material-ui/lib/select-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import RaisedButton from 'material-ui/lib/raised-button';
 import * as RecordActions from '../../../../actions/record';
+import * as SubjectActions from '../../../../actions/subject';
 
 import { connect } from 'react-redux';
 
@@ -15,7 +16,8 @@ class NewRecordLink extends React.Component {
   }
 
   handleNewRecordClick() {
-    console.log('record linking action');
+    const { dispatch } = this.props;
+    dispatch(SubjectActions.setLinkMode());
   }
 
   onChange(e, index, value) {
