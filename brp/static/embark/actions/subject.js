@@ -21,6 +21,10 @@ export const SET_NEW_SUBJECT = 'SET_NEW_SUBJECT';
 export const REQUEST_SUBJECT_RECORDS = 'REQUEST_SUBJECT_RECORDS';
 export const RECEIVE_SUBJECT_RECORDS = 'RECEIVE_SUBJECT_RECORDS';
 
+function formatDate(date) {
+  return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+}
+
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
@@ -71,7 +75,6 @@ export function receiveSubject(json) {
     subject: json,
   };
 };
-
 
 export function setAddSubjectMode(mode=null) {
   // Update state to enable or disable AddSubject mode
@@ -170,6 +173,7 @@ export function addSubjectFailure(error) {
 }
 
 export function addSubject(protocol, subject) {
+  subject.dob = formatDate(subject.dob);
   return dispatch => {
     dispatch(addSubjectRequest());
     var url = 'api/protocols/' + protocol.id + '/subjects/create';
@@ -233,13 +237,13 @@ export function updateSubject(protocol, subject) {
   };
 }
 
-
 export function setLinkMode(mode=null) {
   return {
     type: SET_LINK_MODE,
     mode,
   };
 }
+
 export function requestSubjectRecords() {
   return {
     type: REQUEST_SUBJECT_RECORDS,
@@ -253,7 +257,6 @@ export function receiveSubjectRecords(pds, json) {
     items: json,
   };
 }
-
 
 export function fetchSubjectRecords(pds, subject) {
   return dispatch => {
