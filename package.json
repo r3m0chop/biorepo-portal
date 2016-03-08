@@ -4,9 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "watch": "webpack --progress --colors --watch",
     "build": "webpack --progress --colors --optimize-minimize"
+  },
+  "jest": {
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/react",
+      "<rootDir>/node_modules/react-dom",
+      "<rootDir>/node_modules/react-addons-test-utils"
+    ]
   },
   "repository": {
     "type": "git",
@@ -38,11 +45,14 @@
   },
   "devDependencies": {
     "babel-core": "^6.3.26",
+    "babel-jest": "^9.0.1",
     "babel-loader": "^6.2.0",
-    "babel-polyfill": "^6.3.14",
+    "babel-polyfill": "^6.6.1",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
+    "jest-cli": "^0.9.0",
     "jsx-loader": "^0.13.2",
+    "react-addons-test-utils": "^0.14.7",
     "redux-devtools": "^3.0.1",
     "webpack": "^1.12.13"
   }
