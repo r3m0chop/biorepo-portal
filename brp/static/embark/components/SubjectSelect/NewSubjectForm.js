@@ -6,9 +6,11 @@ import Divider from 'material-ui/lib/divider';
 import * as Colors from 'material-ui/lib/styles/colors';
 import SubjectOrgSelectField from '../SubjectView/SubjectPanel/SubjectOrgSelectField';
 import SubjectTextField from '../SubjectView/SubjectPanel/SubjectTextField';
+import SubjectDateField from '../SubjectView/SubjectPanel/SubjectDateField';
 import { connect } from 'react-redux';
 
-class NewSubjectForm extends React.Component{
+// Use named export for unconnected component (for testing)
+export class NewSubjectForm extends React.Component{
 
   constructor(props) {
     super(props);
@@ -31,20 +33,23 @@ class NewSubjectForm extends React.Component{
 
   isValid() {
     const subject = this.props.subject.newSubject;
+    if (subject == null) {
+      return false;
+    }
 
     if (Object.keys(subject).length == 0) {
       return false;
     }
 
-    if (subject.first_name == '') {
+    if (!subject.first_name) {
       return false;
     }
 
-    if (subject.last_name == '') {
+    if (!subject.last_name) {
       return false;
     }
 
-    if (subject.dob == '') {
+    if (!subject.dob) {
       return false;
     }
 
@@ -96,7 +101,7 @@ class NewSubjectForm extends React.Component{
             <SubjectTextField new={true} label={'Last Name'} value={null} skey={'last_name'} />
             <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id'} />
             <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id_validation'} />
-            <SubjectTextField new={true} label={'Date of Birth'} value={null} skey={'dob'} />
+            <SubjectDateField new={true} label={'Date of Birth'} value={newSub.dob} skey={'dob'} />
             <RaisedButton label={'Add Subject'} labelColor={'#7AC29A'} type="submit" style={{width:'100%'}}/>
             <Divider />
             <RaisedButton label={'Cancel'} labelColor={Colors.red400} onClick={this.handleCloseClick.bind(this)} style={{width:'100%'}}/>
@@ -127,8 +132,6 @@ function mapStateToProps(state) {
       items: state.pds.items,
     },
     savingSubject: state.subject.isSaving,
-    showInfoPanel: state.subject.showInfoPanel,
-    showActionPanel: state.subject.showActionPanel,
     newFormErrors: state.subject.newFormErrors,
   };
 }
