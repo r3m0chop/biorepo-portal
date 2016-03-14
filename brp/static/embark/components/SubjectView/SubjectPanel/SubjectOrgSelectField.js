@@ -26,11 +26,17 @@ class SubjectOrgSelectField extends React.Component{
 
   render() {
     const orgs = this.props.orgs;
+
+    if (this.props.error) {
+      var errorText = 'Please select an organization.';
+    };
+
     return (
       <SelectField
         onChange={this.onChange.bind(this)}
         style={{ width:'100%' }}
         value={this.props.value}
+        errorText={errorText}
       >
         { orgs ?
           orgs.map(function (org, i) {

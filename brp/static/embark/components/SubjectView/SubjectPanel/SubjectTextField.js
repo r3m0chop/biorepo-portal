@@ -23,12 +23,17 @@ class SubjectTextField extends React.Component{
   }
 
   render() {
+    if (this.props.error) {
+      var errorText = 'This field is required.';
+    };
+
     return (
       <TextField
         onChange={this.onChange.bind(this)}
         style={{ width:'100%' }}
         value={this.props.value}
         floatingLabelText={this.props.label}
+        errorText={errorText}
       />
     );
   }
