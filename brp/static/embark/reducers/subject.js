@@ -3,7 +3,8 @@ import { REQUEST_SUBJECTS, RECEIVE_SUBJECTS, SET_ACTIVE_SUBJECT,
          SHOW_INFO_PANEL, HIDE_INFO_PANEL, SHOW_ACTION_PANEL,
          HIDE_ACTION_PANEL, UPDATE_SUBJECT_SUCCESS, UPDATE_SUBJECT_REQUEST,
          SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE,
-         SET_ADD_SUBJECT_MODE, SET_NEW_SUBJECT, REQUEST_SUBJECT_SUCCESS } from '../actions/subject';
+         SET_ADD_SUBJECT_MODE, SET_NEW_SUBJECT, REQUEST_SUBJECT_SUCCESS,
+         SET_NEW_SUBJECT_FORM_ERRORS } from '../actions/subject';
 import rootReducer from './index';
 
 const initialNewSubject = {
@@ -27,7 +28,10 @@ const initialState = {
   showActionPanel: false,
   addRecordMode: false,
   linkMode: false,
-  newFormErrors: null,
+  newFormErrors: {
+    server: null,
+    form: {},
+  },
   updateFormErrors: null,
 };
 
@@ -106,27 +110,46 @@ function subject(state = initialState, action) {
       }
 
     case SET_ADD_SUBJECT_MODE:
+      const initialNewSubject = Object.assign({}, initialNewSubject);
       if (action.mode != null) {
         return Object.assign({}, state, {
           addSubjectMode: action.mode,
-          newFormErrors: null,
+          newFormErrors: {
+            server: null,
+            form: {},
+          },
           newSubject: initialNewSubject,
         });
       } else {
         return Object.assign({}, state, {
           addSubjectMode: !state.addSubjectMode,
-          newFormErrors: null,
+          newFormErrors: {
+            server: null,
+            form: {},
+          },
           newSubject: initialNewSubject,
         });
       }
 
     case ADD_SUBJECT_SUCCESS:
       return Object.assign({}, state, {
-        newFormErrors: null,
+        newFormErrors: {
+          server: null,
+        },
       });
     case ADD_SUBJECT_FAILURE:
       return Object.assign({}, state, {
-        newFormErrors: action.errors,
+        newFormErrors: {
+          server: action.errors,
+          form: {},
+        },
+      });
+    case SET_NEW_SUBJECT_FORM_ERRORS:
+      return Object.assign({}, state, {
+        newFormErrors: {
+          form: action.errors,
+          form: {},
+        },
       });
     default:
       return state;
