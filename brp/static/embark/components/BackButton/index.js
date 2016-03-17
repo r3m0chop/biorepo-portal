@@ -13,9 +13,11 @@ class BackButton extends React.Component {
 
   render() {
     var divStyle = {
+      backgroundColor: 'white',
+      opacity: '0.7',
       width: '100px',
       position: 'absolute',
-      zIndex: 1000,
+      zIndex: 99,
       left: '90px',
       bottom: '10px',
       height: '100px',
