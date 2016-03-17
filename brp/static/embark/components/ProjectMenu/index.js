@@ -25,7 +25,7 @@ class ProjectMenu extends React.Component {
 
   render() {
     return (
-        <div>
+        <div className="card">
           <p>Welcome Back</p>
           <p><i>Select a project for data entry</i></p>
           { this.props.protocol.items.map(function (protocol, i) {

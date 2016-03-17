@@ -104,12 +104,24 @@ export class NewSubjectForm extends React.Component{
   render() {
     const orgs = this.props.orgs;
     const newSub = this.props.subject.newSubject;
+    const newSubFormStyle = {
+        left: '50%',
+        marginLeft: '-15em',
+        marginBottom: '3em',
+        position: 'fixed',
+        zIndex: '1000',
+    };
+    const cardStyle = {
+        padding: '15px',
+        boxShadow: '3px 3px 14px rgba(204, 197, 185, 0.5)',
+        backgroundColor: 'white',
+    }
 
     // jscs:disable
     return (
       <div className="col-md-12 col-sm-12">
-      <div className="col-md-4 col-sm-4 new-subject-form">
-        <div className="card">
+      <div className="col-md-4 col-sm-4" style={newSubFormStyle}>
+        <div className="card" style={cardStyle}>
           <h6 className="category">Add New Subject</h6>
           <div className="more">
           </div>

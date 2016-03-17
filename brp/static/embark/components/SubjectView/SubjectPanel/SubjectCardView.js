@@ -19,13 +19,15 @@ class SubjectCardView extends React.Component{
       <div className="col-md-4 col-sm-6">
         <div className="card">
           <div className="more">
-            <Link to={editUrl} type="button" className="btn btn-simple btn-icon btn-danger" >
-              <i className="ti-pencil"></i>
-            </Link>
+          <Link to={editUrl} type="button" style={{ marginRight: '40%' }} className="btn btn-simple btn-icon pull-right" >
+            <i className="ti-pencil"></i>
+          </Link>
           </div>
           <div className="content">
+
             <h6 className="category">{ subject.organization_name }</h6>
             <h4 className="title">{ subject.first_name } { subject.last_name }</h4>
+
             <p className="description">Org ID: { subject.organization_subject_id }</p>
             <p className="description">Date of birth: { subject.dob }</p>
             <ExternalIDs externalIds={subject.external_ids} />

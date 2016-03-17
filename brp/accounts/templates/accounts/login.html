@@ -17,13 +17,17 @@
 {% endblock %}
 
 {% block main_content %}
-
-
+    <div class="row">
+        <div class="col-md-12 col-md-offset-3">
+            <h1 style="color:#747474"> The Biorepository Portal Project </h1>
+        </div>
+    </div>
     {% if form.non_field_errors %}
     <div class="row">
         <div class="info messages col-md-8 col-md-offset-2">
 		<div class="alert alert-danger">
 		    <center>
+
                     {% for e in form.non_field_errors %}
                         <span>{{ e }}</span>{% if not forloop.last %}<br>{% endif %}
                     {% endfor %}
@@ -33,6 +37,7 @@
     </div>
 	{% endif %}
 	<div class="row">
+
 		{% if login_not_allowed %}
 		    <p class="message warning">You have reached the maximum number of login attempts.</p>
 		{% else %}
@@ -51,6 +56,11 @@
 		    </form>
 	       {% endif %}
 	</div>
+    <div class="col-md-12 col-md-offset-4">
+        <div>
+            <a href="http://dbhi.chop.edu"><img src="{{ STATIC_URL }}img/CHDBHi.png"></a>
+        </div>
+    </div>
 
 
 
