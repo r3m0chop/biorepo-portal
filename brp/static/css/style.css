@@ -143,39 +143,6 @@ a {
     background-color: #F0F8FF !important;
 }
 
-.subject-action-panel {
-    right: 0px;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 240px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    text-shadow: 0 1px 1px #fff;
-    z-index: 100;
-    display: block;
-    box-shadow: -5px 0px 40px -20px;
-}
-.subject-info-panel {
-    left: 0px;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 240px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    text-shadow: 0 1px 1px #fff;
-    z-index: 100;
-    display: block;
-}
-.subject-action-close {
-    cursor: pointer;
-}
-.subject-action-close:hover {
-    color: #ac3850;
-}
 .record-time{
     font-size: .65em !important;
 }
@@ -189,18 +156,7 @@ a {
     margin: 0px 0px 10px 40px;
     width: 114px;
 }
-.new-subject-form {
-    left: 50%;
-    margin-left: -15em;
-    margin-bottom: 3em;
-    position: fixed;
-    z-index:1000;
-}
-.new-subject-form>.card{
-    padding: 15px;
-    box-shadow: 3px 3px 14px rgba(204, 197, 185, 0.5);
 
-}
 .new-subject-button {
     width: 100%;
     text-align: center;
@@ -229,17 +185,7 @@ td.row-action:hover {
     color: #baa76b;
     cursor: pointer;
 }
-.edit-label-modal {
-    left: 50%;
-    margin-left: -5em;
-    margin-bottom: 3em;
-    position: fixed;
-    z-index:1000;
-}
-.edit-label-modal>.card {
-    padding: 15px;
-    box-shadow: 3px 3px 14px rgba(204, 197, 185, 0.5);
-}
+
 
 .card {
     padding: 20px;

@@ -47,10 +47,15 @@ class EditLabelModal extends React.Component {
         marginBottom: '3em',
         position: 'fixed',
         zIndex: '1000',
-    }
+    };
+    const cardStyle = {
+      padding: '15px',
+      boxShadow: '3px 3px 14px rgba(204, 197, 185, 0.5)',
+      backgroundColor: 'white',
+    };
     return (
       <div className="col-sm-2 edit-label-modal" style={editLabelModalStyle}>
-        <div className="card" style={{ backgroundColor: 'white' }}>
+        <div className="card" style={cardStyle}>
           <h6 className="category">Edit Record Label</h6>
           <div className="more">
           </div>
