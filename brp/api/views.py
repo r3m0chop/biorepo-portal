@@ -135,9 +135,6 @@ class ProtocolViewSet(viewsets.ModelViewSet):
                 success = False
                 errors.append(prefix + "last name: " + subject.last_name)
             if subject.dob != new_subject.dob.date():
-                print type(subject.dob)
-                print type(new_subject.dob)
-
                 success = False
                 errors.append(prefix + "birth date: " + str(subject.dob))
         except PageNotFound:
@@ -432,7 +429,7 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
         """
         p = self.get_object()
         ex_recs = []
-        
+
         if p.protocol.isUserAuthorized(request.user):
             try:
                 ProtocolUserCredentials.objects.get(

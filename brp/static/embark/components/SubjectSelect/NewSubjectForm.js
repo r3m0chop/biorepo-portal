@@ -33,40 +33,59 @@ export class NewSubjectForm extends React.Component{
 
   isValid() {
     const subject = this.props.subject.newSubject;
+    const { dispatch } = this.props;
+
+    var valid = true;
+    var errors = {};
+
     if (subject == null) {
-      return false;
+      valid = false;
     }
 
     if (Object.keys(subject).length == 0) {
-      return false;
+      valid = false;
+    }
+
+    if (!subject.organization) {
+      errors.org = true;
+      valid = false;
     }
 
     if (!subject.first_name) {
-      return false;
+      errors.first_name = true;
+      valid = false;
     }
 
     if (!subject.last_name) {
-      return false;
+      errors.last_name = true;
+      valid = false;
     }
 
     if (!subject.dob) {
-      return false;
+      errors.dob = true;
+      valid = false;
+    }
+
+    if (!subject.organization_subject_id) {
+      errors.org_id = true;
+      valid = false;
     }
 
     if (subject.organization_subject_id != subject.organization_subject_id_validation) {
-      return false;
+      errors.org_id_valid = true;
+      valid = false;
     }
 
-    return true;
+    dispatch(SubjectActions.setNewSubjectFormErrors(errors));
+    return valid;
   }
 
   renderErrors() {
-    const errors = this.props.newFormErrors;
+    const errors = this.props.newFormErrors.server;
     const style = {
       fontSize: '12px',
       marginTop: '15px',
     };
-
     if (errors) {
       return (
         errors.map(function (error, i) {
@@ -96,12 +115,12 @@ export class NewSubjectForm extends React.Component{
           </div>
           <div className="content">
           <form id="subject-form" onSubmit={this.handleSaveClick.bind(this)}>
-            <SubjectOrgSelectField new={true} value={newSub.organization} />
-            <SubjectTextField new={true} label={'First Name'} value={null} skey={'first_name'}/>
-            <SubjectTextField new={true} label={'Last Name'} value={null} skey={'last_name'} />
-            <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id'} />
-            <SubjectTextField new={true} label={'Organization ID'} value={null} skey={'organization_subject_id_validation'} />
-            <SubjectDateField new={true} label={'Date of Birth'} value={newSub.dob} skey={'dob'} />
+            <SubjectOrgSelectField new={true} error={this.props.newFormErrors.form.org} value={newSub.organization} />
+            <SubjectTextField new={true} error={this.props.newFormErrors.form.first_name} label={'First Name'} value={null} skey={'first_name'}/>
+            <SubjectTextField new={true} error={this.props.newFormErrors.form.last_name} label={'Last Name'} value={null} skey={'last_name'} />
+            <SubjectTextField new={true} error={this.props.newFormErrors.form.org_id} label={'Organization ID'} value={null} skey={'organization_subject_id'} />
+            <SubjectTextField new={true} error={this.props.newFormErrors.form.org_valid} label={'Organization ID'} value={null} skey={'organization_subject_id_validation'} />
+            <SubjectTextField new={true} error={this.props.newFormErrors.form.dob} label={'Date of Birth'} value={null} skey={'dob'} />
             <RaisedButton label={'Add Subject'} labelColor={'#7AC29A'} type="submit" style={{width:'100%'}}/>
             <Divider />
             <RaisedButton label={'Cancel'} labelColor={Colors.red400} onClick={this.handleCloseClick.bind(this)} style={{width:'100%'}}/>
