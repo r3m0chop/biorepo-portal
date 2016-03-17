@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="{% static "paper/bootstrap3/css/bootstrap.min.css" %}">
-    <link rel="stylesheet" href="{% static "paper/assets/css/ct-paper.css" %}">
+    <!-- <link rel="stylesheet" href="{% static "paper/assets/css/ct-paper.css" %}"> -->
     <script src="{% static "paper/assets/js/jquery-1.10.2.js" %}" type="text/javascript"></script>
     <script src="{% static "paper/assets/js/jquery-ui-1.10.4.custom.min.js" %}" type="text/javascript"></script>
     <script src="{% static "paper/bootstrap3/js/bootstrap.js" %}" type="text/javascript"></script>
@@ -34,24 +34,6 @@
     </head>
 
     <body>
-
-    <nav class="navbar navbar-ct-primary navbar-fixed-top" role="navigation">
-        <div class="navbar-header">
-            <div class="navbar-brand">
-            {% block topbar_block %}
-            {% endblock %}
-            </div>
-        </div>
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-                {% if request.user.is_authenticated %}
-                <ul class="nav navbar-nav navbar-right pull-right">
-                    {% block top_links %}
-                    {% endblock %}
-                    <li><a href="{{root_path}}/logout">Logout</href></a></li>
-                </ul>
-                {% endif %}
-        </div>
-    </nav>
 
     <div class="container main-content">
 

@@ -6,9 +6,14 @@ export default class Navbar extends React.Component {
 
   render() {
     const brandStyle = {
-      color: 'white',
+      color: '#7a7a7a',
       marginTop: '0px',
     };
+    const navbarStyle = {
+      'backgroundColor': '#E9F5FD',
+      'paddingRight': '20px',
+      'boxShadow': '0 3px 6px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.12)',
+    }
     const protocol = this.props.protocols.activeProtocol;
 
     if (protocol) {
@@ -16,7 +21,7 @@ export default class Navbar extends React.Component {
     }
 
     return (
-        <div className="navbar navbar-ct-primary navbar-fixed-top" role="navigation">
+        <div style={navbarStyle} className="navbar navbar-ct-primary navbar-fixed-top" role="navigation">
           <div className="navbar-header">
             <div className="navbar-brand">
               <Link style={brandStyle} className="navbar-text" to={'/'}>Biorepository Portal</Link>
