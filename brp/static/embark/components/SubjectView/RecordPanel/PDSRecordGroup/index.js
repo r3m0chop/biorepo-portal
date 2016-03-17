@@ -39,7 +39,14 @@ class PDSRecordGroup extends React.Component {
   }
 
   handleViewRecordClick() {
-
+    var url = '/dataentry/protocoldatasource/';
+    url += this.props.pds.id;
+    url += '/subject/';
+    url += this.props.subject.id;
+    url += '/record/';
+    url += this.props.activeRecord.id;
+    url += '/start/';
+    window.location.href = url;
   }
 
   handleLinkRecordClick() {
@@ -108,7 +115,7 @@ class PDSRecordGroup extends React.Component {
               <td>{record.modified}</td>
               <td className="row-action" onClick={this.handleEditRecordClick.bind(this)}>Label</td>
               <td className="row-action" onClick={this.handleLinkRecordClick.bind(this)}>Link</td>
-              <td className="row-action">View</td>
+              <td className="row-action" onClick={this.handleViewRecordClick.bind(this)}>View</td>
             </tr>
           );
         } else {

@@ -1,6 +1,7 @@
 import 'babel-polyfill';
 import React from 'react';
 import App from './containers/App';
+import Navbar from './components/Navbar';
 import ProjectMenu from './components/ProjectMenu';
 import SubjectSelect  from './components/SubjectSelect';
 import SubjectView  from './components/SubjectView';
@@ -33,4 +34,10 @@ if (window.location.pathname == '/') {
     </Provider>,
     document.getElementById('react')
   );
+} else {
+  render(
+    <Provider store={store}>
+      <Navbar />
+    </Provider>,
+  document.getElementById('react'))
 }
