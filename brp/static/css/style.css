@@ -168,16 +168,6 @@ td.row-action {
 td.row-action:hover {
     color: coral !important;
 }
-.link-banner {
-    position: fixed;
-    top: 92px;
-    z-index:98;
-    margin-left:-20px;
-    background-color: #FFE28C;
-    color: #BB992F;
-    width:100%;
-    padding:10px;
-}
 .link-close {
     padding-right:15px;
 }
