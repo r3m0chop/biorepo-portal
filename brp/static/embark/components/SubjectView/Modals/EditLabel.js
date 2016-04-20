@@ -53,30 +53,43 @@ class EditLabelModal extends React.Component {
       boxShadow: '3px 3px 14px rgba(204, 197, 185, 0.5)',
       backgroundColor: 'white',
     };
+    const backdropStyle = {
+        position: 'fixed',
+        top: '0px',
+        left: '0px',
+        width: '100%',
+        height: '100%',
+        zIndex: 99,
+        display: 'block',
+        backgroundColor: 'rgba(0, 0, 0, 0.298039)',
+    }
     return (
-      <div className="col-sm-2 edit-label-modal" style={editLabelModalStyle}>
-        <div className="card" style={cardStyle}>
-          <h6 className="category">Edit Record Label</h6>
-          <div className="more">
+      <section>
+        <div style={backdropStyle}></div>
+        <div className="col-sm-2 edit-label-modal" style={editLabelModalStyle}>
+          <div className="card" style={cardStyle}>
+            <h6 className="category">Edit Record Label</h6>
+            <div className="more">
+            </div>
+            <div className="content">
+              <SelectField style={{ width:'100%' }}
+                onChange={this.onChange.bind(this)}
+                value={this.props.activeRecord.label}
+              >
+                { labels.map(function (label, i) {
+                    return <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>;
+                  })
+                }
+              </SelectField>
+            </div>
+            <RaisedButton style={{ width: '100%' }}
+              labelColor={Colors.red400}
+              label="Cancel"
+              onClick={this.handleCloseClick.bind(this)}
+            />
           </div>
-          <div className="content">
-            <SelectField style={{ width:'100%' }}
-              onChange={this.onChange.bind(this)}
-              value={this.props.activeRecord.label}
-            >
-              { labels.map(function (label, i) {
-                  return <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>;
-                })
-              }
-            </SelectField>
-          </div>
-          <RaisedButton style={{ width: '100%' }}
-            labelColor={Colors.red400}
-            label="Cancel"
-            onClick={this.handleCloseClick.bind(this)}
-          />
         </div>
-      </div>
+      </section>
     );
   }
 }

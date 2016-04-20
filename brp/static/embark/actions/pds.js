@@ -4,6 +4,8 @@ import * as NotificationActions from './notification';
 export const REQUEST_PDS = 'REQUEST_PDS';
 export const RECEIVE_PDS = 'RECEIVE_PDS';
 export const SET_ACTIVE_PDS = 'SET_ACTIVE_PDS';
+export const REQUEST_PDS_LINKS = 'REQUEST_PDS_LINKS';
+export const RECEIVE_PDS_LINKS = 'RECEIVE_PDS_LINKS';
 
 function checkResponse(response) {
   if (response.status >= 200 && response.status < 300) {
@@ -80,4 +82,36 @@ export function fetchPDS(protocolId) {
       }
     );
   };
+}
+
+export function requestPDSLinks() {
+  return {
+    type: REQUEST_PDS_LINKS,
+  }
+}
+
+export function receivePDSLinks(pdsId, json) {
+  return {
+    type: RECEIVE_PDS_LINKS,
+    pds: pdsId,
+    links: json
+  }
+}
+
+export function fetchPDSLinks(pdsId) {
+  return dispatch => {
+    dispatch(requestPDSLinks());
+    var url = 'api/protocoldatasources/'
+    url += pdsId
+    url += '/links/'
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'token ' + token,
+      },
+    })
+      .then(response => response.json())
+      .then(json => dispatch(receivePDSLinks(pdsId, json)));
+  }
 }

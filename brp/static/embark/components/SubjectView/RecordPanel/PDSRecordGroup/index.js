@@ -8,7 +8,6 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import ContentAdd from 'material-ui/lib/svg-icons/content/add';
 import LoadingGif from '../../../LoadingGif';
 import NewRecordLabelSelect from './NewRecordLabelSelect';
-import NewRecordLink from './NewRecordLink';
 import * as SubjectActions from '../../../../actions/subject';
 import * as RecordActions from '../../../../actions/record';
 import * as PDSActions from '../../../../actions/pds';
@@ -27,12 +26,10 @@ class PDSRecordGroup extends React.Component {
         dispatch(SubjectActions.setLinkMode());
         return;
       };
-
-      console.log('linking ' + this.props.activeRecord.id + ' with ' + record.id);
       dispatch(RecordActions.setPendingLinkedRecord(record));
-      this.refs.addLinkModal.show();
     } else {
 
+      dispatch(RecordActions.fetchRecordLinks(pds.id, this.props.subject.id, record.id))
       dispatch(RecordActions.setActiveRecord(record));
       dispatch(PDSActions.setActivePDS(pds));
     }
@@ -63,6 +60,7 @@ class PDSRecordGroup extends React.Component {
     const { dispatch } = this.props;
     if (this.props.records.length == 0) {
       dispatch(RecordActions.fetchRecords(this.props.pds, this.props.subject.id));
+      dispatch(PDSActions.fetchPDSLinks(this.props.pds.id));
     }
   }
 
@@ -70,6 +68,16 @@ class PDSRecordGroup extends React.Component {
     // Make sure that record state returns to its initialState once this view unmounts
     const { dispatch } = this.props;
     dispatch(RecordActions.clearRecordState());
+  }
+
+  isLinked(record) {
+    var linked = false
+    this.props.activeLinks.forEach(function(link) {
+      if (link.external_record.id == record.id){
+        linked = true
+      }
+    }, this)
+    return linked
   }
 
   render() {
@@ -105,11 +113,13 @@ class PDSRecordGroup extends React.Component {
     });
 
     var recordNodes = null;
+    var activeLinks = this.props.activeLinks;
     if (records.length != 0) {
       var recordNodes = records.map(function (record, i) {
         if (this.props.activeRecord != null && (this.props.activeRecord.id == record.id)) {
           return (
             <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} style={exRecStyle} >
+              <td>{record.id}</td>
               <td>{record.label_desc}</td>
               <td>{record.created}</td>
               <td>{record.modified}</td>
@@ -119,7 +129,19 @@ class PDSRecordGroup extends React.Component {
             </tr>
           );
         } else {
-          return <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} className="ExternalRecord" ><td>{record.label_desc}</td><td>{record.created}</td><td>{record.modified}</td></tr>;
+          var linkIcon = null;
+          if (activeLinks != null) {
+            if (this.isLinked(record)) {
+              linkIcon = <i className="ti-link"></i>
+            }
+          }
+          return (
+            <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} className="ExternalRecord" >
+              <td>{record.id}</td>
+              <td>{linkIcon} {record.label_desc}</td>
+              <td>{record.created}</td>
+              <td>{record.modified}</td>
+            </tr>);
         }
       }, this);
     };
@@ -134,9 +156,6 @@ class PDSRecordGroup extends React.Component {
       <div>
         <SkyLight ref="addRecordModal" dialogStyles={modalStyles}>
           <NewRecordLabelSelect pds={this.props.pds}/>
-        </SkyLight>
-        <SkyLight ref="addLinkModal" dialogStyles={modalStyles}>
-          <NewRecordLink pds={this.props.pds}/>
         </SkyLight>
         <h6 className="category">{this.props.pds.display_label}
           { this.props.pds.authorized ?
@@ -163,7 +182,7 @@ class PDSRecordGroup extends React.Component {
             recordNodes ?
             <table className="table table-striped">
               <thead>
-                <tr><th>Record</th><th>Created</th><th>Modified</th></tr>
+                <tr><th>Record ID</th><th>Record</th><th>Created</th><th>Modified</th></tr>
               </thead>
               <tbody>
                 { recordNodes }
@@ -193,6 +212,7 @@ function mapStateToProps(state) {
     },
     subject: state.subject.activeSubject,
     activeRecord: state.record.activeRecord,
+    activeLinks: state.record.activeLinks,
     linkMode: state.subject.linkMode,
     selectedLabel: state.record.selectedLabel,
   };

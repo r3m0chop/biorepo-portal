@@ -2,7 +2,9 @@
 import React from 'react';
 import SkyLight from 'react-skylight';
 import PDSRecordGroup from './PDSRecordGroup';
-import LinkModeBanner from './LinkModeBanner';
+import LinkModeBanner from '../Modals/LinkModeBanner';
+import LinkRecord from '../Modals/LinkRecord';
+import LinkedRecords from './LinkedRecords';
 import * as SubjectActions from '../../../actions/subject';
 import * as RecordActions from '../../../actions/record';
 import { connect } from 'react-redux';
@@ -38,15 +40,21 @@ class RecordPanel extends React.Component {
     }
 
     return (
+      <div>
       <div className="col-md-8 col-sm-2">
         <div className="card">
           <div className="content">
             { this.props.linkMode ? <LinkModeBanner /> : null }
+            { this.props.selectLinkTypeModal ? <LinkRecord/> : null }
             <h5 className="category">Subject Records</h5>
             { pdsNodes }
           </div>
         </div>
         { this.props.children }
+      </div>
+      { this.props.activeLinks.length != 0 && !this.props.isFetching?
+        <LinkedRecords /> : null
+      }
       </div>
     );
   }
@@ -68,9 +76,12 @@ function mapStateToProps(state) {
     showActionPanel: state.subject.showActionPanel,
     activeRecord: state.record.activeRecord,
     activeSubject: state.subject.activeSubject,
+    activeLinks: state.record.activeLinks,
     activeSubjectRecords: state.subject.activeSubjectRecords,
     selectedLabel: state.record.selectedLabel,
     linkMode: state.subject.linkMode,
+    selectLinkTypeModal: state.record.selectLinkTypeModal,
+    isFetching: state.record.isFetching,
   };
 }
 
