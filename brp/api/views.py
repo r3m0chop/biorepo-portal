@@ -3,12 +3,13 @@ from datetime import datetime
 from django.contrib.auth.models import User, Group
 from ehb_client.requests.exceptions import PageNotFound
 from ehb_client.requests.subject_request_handler import Subject
+from ehb_client.requests.external_record_request_handler import ExternalRecord
 from rest_framework import viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 from api.serializers import UserSerializer, GroupSerializer, OrganizationSerializer,\
     DataSourceSerializer, ProtocolSerializer, ProtocolDataSourceSerializer,\
-    eHBSubjectSerializer, eHBExternalRecordSerializer
+    eHBSubjectSerializer
 
 from portal.models.protocols import Organization, Protocol, DataSource, ProtocolDataSource,\
     ProtocolUserCredentials
@@ -405,7 +406,7 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
                         for sub in subjects:
                             for rec in ex_rec["external_record"]:
                                 if rec.subject_id == sub["id"]:
-                                    sub["external_records"].append(eHBExternalRecordSerializer(rec).data)
+                                    sub["external_records"].append(rec.json_from_identity(rec))
 
                 return Response({
                     "subjects": subjects,
@@ -445,24 +446,92 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
 
             if res["success"]:
                 for ex_rec in res["external_record"]:
-                    t = eHBExternalRecordSerializer(ex_rec).data
+                    t = json.loads(ex_rec.json_from_identity(ex_rec))
                     ex_recs.append(t)
 
         return Response(sorted(
             ex_recs, key=lambda ex_recs: ex_recs["created"]))
+
+
+    @detail_route(methods=['get'])
+    def available_links(self, request, *args, **kwargs):
+        '''Return available links that can be made using this protocol data source
+        '''
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            res = ServiceClient.ext_rec_rel_client.get()
+            if pds.driver_configuration != '':
+                dc = json.loads(pds.driver_configuration)
+            else:
+                return Response([])
+            links = []
+            for link in res:
+                if 'links' in dc.keys() and link['id'] in dc['links']:
+                    links.append(link)
+            return Response(links)
 
     @detail_route(methods=['get'])
     def get_subject_record(self, request, *args, **kwargs):
         pds = self.get_object()
         if pds.protocol.isUserAuthorized(request.user):
             res = ServiceClient.ext_rec_client.get(id=kwargs['record_id'])
-            d = dict(eHBExternalRecordSerializer(res).data)
+            d = json.loads(res.json_from_identity(res))
             return Response(d)
         else:
             return Response(
                 {"detail": "You are not authorized to view records from this protocol"},
                 status=403
             )
+
+    @detail_route(methods=['get'])
+    def get_subject_record_links(self, request, *args, **kwargs):
+        '''Return a list of record links for a specific record on a protocol data source
+        '''
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            res = ServiceClient.ext_rec_client.get(id=kwargs['record_id'], links=True)
+            return Response(res)
+        else:
+            return Response(
+                {"detail": "You are not authorized to view record links from this protocol"},
+                status=403
+            )
+
+    @detail_route(methods=['post'])
+    def create_subject_record_link(self, request, *args, **kwargs):
+        '''Create a link between two subject records in the eHB
+        '''
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            data = json.loads(request.body)
+            primary_rec = data['primaryRecord']
+            secondary_rec = data['secondaryRecord']
+            link_type = data['linkType']
+            # Serialize
+            primary_rec = ExternalRecord.identity_from_json(json.dumps(primary_rec))
+            secondary_rec = ExternalRecord.identity_from_json(json.dumps(secondary_rec))
+            res = ServiceClient.ext_rec_client.link(primary_rec, secondary_rec, link_type)
+            if res['success']:
+                return Response(res)
+            else:
+                return Response({'success': False, 'error': res['error']}, status=422)
+            return Response({'success': False, 'error': 'Unknown Error'}, status=422)
+
+    @detail_route(methods=['delete'])
+    def delete_subject_record_link(self, request, *args, **kwargs):
+        '''Create a link between two subject records in the eHB
+        '''
+        pds = self.get_object()
+        if pds.protocol.isUserAuthorized(request.user):
+            data = json.loads(request.body)
+            primary_rec = data['primaryRecord']
+            link_id = data['linkId']
+            # Serialize
+            primary_rec = ExternalRecord.identity_from_json(json.dumps(primary_rec))
+            res = ServiceClient.ext_rec_client.unlink(primary_rec, link_id)
+            if res['success']:
+                return Response(res)
+            return Response({'success': False }, status=422)
 
     @detail_route(methods=['put'])
     def update_subject_record(self, request, *args, **kwargs):
@@ -480,7 +549,8 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
             rec.modified = datetime.now()
             res = ServiceClient.ext_rec_client.update(rec)[0]
             if res['success']:
-                return Response(dict(eHBExternalRecordSerializer(res['external_record']).data))
+                ex_rec = res['external_record']
+                return Response(json.loads(ex_rec.json_from_identity(ex_rec)))
             else:
                 return Response({
                     'success': res['success'],

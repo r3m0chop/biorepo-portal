@@ -2,6 +2,7 @@ from django.conf import settings
 
 from ehb_client.requests.external_record_request_handler import ExternalRecordRequestHandler
 from ehb_client.requests.external_record_request_handler import ExternalRecordLabelRequestHandler
+from ehb_client.requests.external_record_request_handler import ExternalRecordRelationRequestHandler
 from ehb_client.requests.external_system_request_handler import ExternalSystemRequestHandler
 from ehb_client.requests.subject_request_handler import SubjectRequestHandler
 from ehb_client.requests.organization_request_handler import OrganizationRequestHandler
@@ -20,6 +21,7 @@ class ServiceClient(object):
     APP_URL = SERVICE_CLIENT_SETTINGS['APP_URL']
     api_key = SERVICE_CLIENT_SETTINGS['API_KEY']
     ext_rec_client = ExternalRecordRequestHandler(host, root_path, isSecure, api_key)
+    ext_rec_rel_client = ExternalRecordRelationRequestHandler(host, root_path, isSecure, api_key)
     ext_rec_label_client = ExternalRecordLabelRequestHandler(host, root_path, isSecure, api_key)
     ext_sys_client = ExternalSystemRequestHandler(host, root_path, isSecure, api_key)
     subj_client = SubjectRequestHandler(host, root_path, isSecure, api_key)

@@ -34,6 +34,14 @@ subject_record = views.ProtocolDataSourceViewSet.as_view({
     'get': 'get_subject_record',
     'put': 'update_subject_record'
 })
+subject_record_links = views.ProtocolDataSourceViewSet.as_view({
+    'get': 'get_subject_record_links',
+    'post': 'create_subject_record_link',
+    'delete': 'delete_subject_record_link'
+})
+available_links = views.ProtocolDataSourceViewSet.as_view({
+    'get': 'available_links'
+})
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include the login URLs for the browsable API
@@ -59,9 +67,17 @@ urlpatterns = [
         subject_record,
         name='pds-subject-record'),
     url(
+        r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/(?P<subject>[0-9]+)/record/(?P<record_id>[0-9]+)/links/$',
+        subject_record_links,
+        name='pds-subject-record-links'),
+    url(
         r'^protocoldatasources/(?P<pk>[0-9]+)/subjects/$',
         pds_subjects,
         name='pds-subject-list'),
+    url(
+        r'^protocoldatasources/(?P<pk>[0-9]+)/links/$',
+        available_links,
+        name='pds-links'),
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
