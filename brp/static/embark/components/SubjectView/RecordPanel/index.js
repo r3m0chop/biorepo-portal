@@ -46,7 +46,6 @@ class RecordPanel extends React.Component {
           <div className="content">
             { this.props.linkMode ? <LinkModeBanner /> : null }
             { this.props.selectLinkTypeModal ? <LinkRecord/> : null }
-            <h5 className="category">Subject Records</h5>
             { pdsNodes }
           </div>
         </div>

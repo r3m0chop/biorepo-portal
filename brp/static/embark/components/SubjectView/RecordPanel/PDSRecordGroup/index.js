@@ -157,7 +157,7 @@ class PDSRecordGroup extends React.Component {
         <SkyLight ref="addRecordModal" dialogStyles={modalStyles}>
           <NewRecordLabelSelect pds={this.props.pds}/>
         </SkyLight>
-        <h6 className="category">{this.props.pds.display_label}
+        <h5 className="category">{this.props.pds.display_label}
           { this.props.pds.authorized ?
             <FloatingActionButton
               onClick={() => this.refs.addRecordModal.show()}
@@ -176,7 +176,7 @@ class PDSRecordGroup extends React.Component {
             <ContentAdd/>
           </FloatingActionButton> }
 
-        </h6>
+        </h5>
         <div className="PDSRecords">
           { this.props.pds.authorized ?
             recordNodes ?
@@ -191,6 +191,7 @@ class PDSRecordGroup extends React.Component {
             <div> Not authorized for this Protocol Data Source </div>
           }
         </div>
+        <hr/>
       </div>
     );
   }
