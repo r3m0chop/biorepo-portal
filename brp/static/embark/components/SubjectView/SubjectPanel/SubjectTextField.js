@@ -30,7 +30,7 @@ class SubjectTextField extends React.Component{
     return (
       <TextField
         onChange={this.onChange.bind(this)}
-        style={{ width:'100%' }}
+        style={{ width:'100%', whiteSpace: 'nowrap' }}
         value={this.props.value}
         floatingLabelText={this.props.label}
         errorText={errorText}

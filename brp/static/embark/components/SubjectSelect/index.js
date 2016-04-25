@@ -32,6 +32,9 @@ class SubjectSelect extends React.Component {
     const subject = row.props.data.subject;
     const { dispatch } = this.props;
 
+    // Update state with new active subject
+    dispatch(SubjectActions.setActiveSubject(subject));
+
     // Push to the correct pathname (and therefore view)
     this.props.history.push({
       pathname: 'dataentry/protocol/' +

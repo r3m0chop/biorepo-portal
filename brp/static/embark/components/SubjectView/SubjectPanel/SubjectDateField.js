@@ -30,7 +30,7 @@ class SubjectDateField extends React.Component{
     return (
       <DatePicker
         onChange={this.onChange.bind(this)}
-        style={{ width:'100%' }}
+        style={{ width:'100%', whiteSpace: 'nowrap' }}
         hintText="Date of Birth"
         mode="landscape"
         value={this.props.value}

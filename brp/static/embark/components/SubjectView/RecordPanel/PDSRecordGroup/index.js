@@ -28,7 +28,6 @@ class PDSRecordGroup extends React.Component {
       };
       dispatch(RecordActions.setPendingLinkedRecord(record));
     } else {
-
       dispatch(RecordActions.fetchRecordLinks(pds.id, this.props.subject.id, record.id))
       dispatch(RecordActions.setActiveRecord(record));
       dispatch(PDSActions.setActivePDS(pds));
@@ -59,7 +58,6 @@ class PDSRecordGroup extends React.Component {
   componentDidMount() {
     const { dispatch } = this.props;
     if (this.props.records.length == 0) {
-      dispatch(RecordActions.fetchRecords(this.props.pds, this.props.subject.id));
       dispatch(PDSActions.fetchPDSLinks(this.props.pds.id));
     }
   }
@@ -106,7 +104,7 @@ class PDSRecordGroup extends React.Component {
     };
 
     const pds = this.props.pds;
-    var records = this.props.record.items.filter(function (record) {
+    var records = this.props.subject.external_records.filter(function (record) {
       if (pds.id == record.pds) {
         return record;
       }
@@ -208,7 +206,6 @@ function mapStateToProps(state) {
       activeProtocol: state.protocol.activeProtocol,
     },
     record: {
-      items: state.record.items,
       isFetching: state.record.isFetching,
     },
     subject: state.subject.activeSubject,
