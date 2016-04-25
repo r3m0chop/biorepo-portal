@@ -6,7 +6,7 @@ export function addNotification(notification) {
   // Add a notification to the notification system.
   return {
     type: ADD_NOTIFICATION,
-    notification: notification,
+    notification,
   };
 }
 
@@ -14,7 +14,7 @@ export function removeNotification(notification) {
   // Add a notification to the notification system.
   return {
     type: REMOVE_NOTIFICATION,
-    notification: notification,
+    notification,
   };
 }
 

@@ -1,4 +1,5 @@
-import fetch  from 'isomorphic-fetch';
+/* global token*/
+import fetch from 'isomorphic-fetch';
 import * as PDSActions from './pds';
 
 export const SET_ACTIVE_PROTOCOL = 'SET_ACTIVE_PROTOCOL';
@@ -9,23 +10,6 @@ export const RECEIVE_PROTOCOL = 'RECEIVE_PROTOCOL';
 export const REQUEST_PROTOCOL_ORGS = 'REQUEST_PROTOCOL_ORGS';
 export const RECEIVE_PROTOCOL_ORGS = 'RECEIVE_PROTOCOL_ORGS';
 
-export function setActiveProtocol(protocolId) {
-  return dispatch => {
-    // If there is an active protocol fetch its organizations and PDS
-    if (protocolId != null) {
-      dispatch(fetchOrganizations(protocolId));
-
-      // Refresh PDS for the select Protocol
-      dispatch(PDSActions.fetchPDS(protocolId));
-    }
-
-    // Update our state with the Protocol given
-    dispatch({
-      type: SET_ACTIVE_PROTOCOL,
-      protocolId,
-    });
-  };
-}
 
 export function requestProtocols() {
   return {
@@ -39,7 +23,52 @@ export function receiveProtocols(json) {
     protocols: json,
     receivedAt: Date.now(),
   };
-};
+}
+
+export function requestOrganizations() {
+  return {
+    type: REQUEST_PROTOCOL_ORGS,
+  };
+}
+
+export function receiveOrganizations(json) {
+  return {
+    type: RECEIVE_PROTOCOL_ORGS,
+    organizations: json,
+  };
+}
+
+export function fetchOrganizations(protocolId) {
+  const url = `api/protocols/${protocolId}/organizations/`;
+  return dispatch => {
+    dispatch(requestOrganizations());
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `token ${token}`,
+      },
+    })
+      .then(response => response.json())
+      .then(json => dispatch(receiveOrganizations(json)));
+  };
+}
+
+export function setActiveProtocol(protocolId) {
+  return dispatch => {
+    // If there is an active protocol fetch its organizations and PDS
+    if (protocolId != null) {
+      dispatch(fetchOrganizations(protocolId));
+      // Refresh PDS for the select Protocol
+      dispatch(PDSActions.fetchPDS(protocolId));
+    }
+    // Update our state with the Protocol given
+    dispatch({
+      type: SET_ACTIVE_PROTOCOL,
+      protocolId,
+    });
+  };
+}
 
 export function requestProtocol() {
   return {
@@ -55,30 +84,17 @@ export function receiveProtocol(json) {
       protocol: json,
     });
   };
-};
-
-export function requestOrganizations() {
-  return {
-    type: REQUEST_PROTOCOL_ORGS,
-  };
-}
-
-export function receiveOrganizations(json) {
-  return {
-    type: RECEIVE_PROTOCOL_ORGS,
-    organizations: json,
-  };
 }
 
 export function fetchProtocols() {
   // Fetch protocols authorized for authorized user.
   return dispatch => {
     dispatch(requestProtocols());
-    return fetch(`api/protocols/`, {
+    return fetch('api/protocols/', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
@@ -90,31 +106,15 @@ export function fetchProtocol(protocolId) {
   // Fetch protocols authorized for authorized user.
   return dispatch => {
     dispatch(requestProtocol());
-    var url = 'api/protocols/' + protocolId + '/';
+    const url = `api/protocols/${protocolId}/`;
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
       .then(json => dispatch(receiveProtocol(json)));
-  };
-}
-
-export function fetchOrganizations(protocolId) {
-  var url = 'api/protocols/' + protocolId + '/organizations/';
-  return dispatch => {
-    dispatch(requestOrganizations());
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: 'token ' + token,
-      },
-    })
-      .then(response => response.json())
-      .then(json => dispatch(receiveOrganizations(json)));
   };
 }

@@ -1,6 +1,5 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-import fetch  from 'isomorphic-fetch';
-import * as ProtocolActions from './protocol';
+/* global token csrf_token*/
+import fetch from 'isomorphic-fetch';
 import * as RecordActions from './record';
 import * as NotificationActions from './notification';
 export const REQUEST_SUBJECTS = 'REQUEST_SUBJECTS';
@@ -25,22 +24,20 @@ export const SET_NEW_SUBJECT_FORM_ERRORS = 'SET_NEW_SUBJECT_FORM_ERRORS';
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
-  } else {
-    var error = new Error(response.statusText);
-    error.response = response;
-    return error;
   }
+  const error = new Error(response.statusText);
+  error.response = response;
+  return error;
 }
 
 function checkAddSubject(json) {
-  var [success, subject, errors] = json;
-  if (!success) {
-    var error = new Error('Unable to add subject');
-    error.errors = errors;
-    throw error;
-  } else {
+  const [success, subject, errors] = json;
+  if (success) {
     return subject;
   }
+  const error = new Error('Unable to add subject');
+  error.errors = errors;
+  throw error;
 }
 
 export function requestSubjects() {
@@ -58,7 +55,7 @@ export function receiveSubjects(json) {
     isFetching: false,
     receivedAt: Date.now(),
   };
-};
+}
 
 export function requestSubject() {
   return {
@@ -71,9 +68,9 @@ export function receiveSubject(json) {
     type: REQUEST_SUBJECT_SUCCESS,
     subject: json,
   };
-};
+}
 
-export function setAddSubjectMode(mode=null) {
+export function setAddSubjectMode(mode = null) {
   // Update state to enable or disable AddSubject mode
   return {
     type: SET_ADD_SUBJECT_MODE,
@@ -82,9 +79,7 @@ export function setAddSubjectMode(mode=null) {
 }
 
 export function setActiveSubject(subject) {
-  return (dispatch, getState) => {
-    const state = getState();
-
+  return dispatch => {
     dispatch(RecordActions.setActiveRecord(null));
     dispatch({
       type: SET_ACTIVE_SUBJECT,
@@ -103,12 +98,12 @@ export function setNewSubject(subject) {
 export function fetchSubjects(protocolId) {
   return dispatch => {
     dispatch(requestSubjects(protocolId));
-    var url = 'api/protocols/' + protocolId + '/subjects/';
+    const url = `api/protocols/${protocolId}/subjects/`;
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
@@ -119,12 +114,12 @@ export function fetchSubjects(protocolId) {
 export function fetchSubject(protocolId, subjectId) {
   return dispatch => {
     dispatch(requestSubject());
-    var url = 'api/protocols/' + protocolId + '/subjects/' + subjectId;
+    const url = `api/protocols/${protocolId}/subjects/${subjectId}`;
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
@@ -140,8 +135,7 @@ export function addSubjectRequest() {
 }
 
 export function addSubjectSuccess(protocolId) {
-  return (dispatch, getState) => {
-    const subjects = getState().subject.items;
+  return dispatch => {
     dispatch(NotificationActions.addNotification(
       {
         message: 'Subject Added',
@@ -150,10 +144,6 @@ export function addSubjectSuccess(protocolId) {
       }
     ));
     dispatch(setAddSubjectMode());
-
-    // We shouldn't have to retrieve state from server here.
-    // At the most we should get back servers version of the
-    // added subject.
     dispatch(fetchSubjects(protocolId));
     dispatch({
       type: ADD_SUBJECT_SUCCESS,
@@ -162,29 +152,29 @@ export function addSubjectSuccess(protocolId) {
 }
 
 export function addSubjectFailure(error) {
-  var errors = error.errors;
+  const errors = error.errors;
   return {
     type: ADD_SUBJECT_FAILURE,
-    errors: errors,
+    errors,
   };
 }
 
 export function addSubject(protocolId, subject) {
   return dispatch => {
     dispatch(addSubjectRequest());
-    var url = 'api/protocols/' + protocolId + '/subjects/create';
+    const url = `api/protocols/${protocolId}/subjects/create`;
     return fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
         'X-CSRFToken': csrf_token,
       },
       body: JSON.stringify(subject),
     })
       .then(response => response.json())
       .then(checkAddSubject)
-      .then(subject => dispatch(addSubjectSuccess(protocolId)))
+      .then(dispatch(addSubjectSuccess(protocolId)))
       .catch(errors => dispatch(addSubjectFailure(errors)));
   };
 }
@@ -194,14 +184,14 @@ export function updateSubjectRequest() {
     type: UPDATE_SUBJECT_REQUEST,
     isSaving: true,
   };
-};
+}
 
 export function updateSubjectSuccess(subject) {
   return dispatch => {
     dispatch({
       type: UPDATE_SUBJECT_SUCCESS,
       isFetching: false,
-      subject: subject,
+      subject,
     });
     dispatch(NotificationActions.addNotification(
       {
@@ -217,12 +207,12 @@ export function updateSubjectSuccess(subject) {
 export function updateSubject(protocolId, subject) {
   return dispatch => {
     dispatch(updateSubjectRequest());
-    var url = 'api/protocols/' + protocolId + '/subjects/' + subject.id;
+    const url = `api/protocols/${protocolId}/subjects/${subject.id}`;
     return fetch(url, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
         'X-CSRFToken': csrf_token,
       },
       body: JSON.stringify(subject),
@@ -233,7 +223,7 @@ export function updateSubject(protocolId, subject) {
   };
 }
 
-export function setLinkMode(mode=null) {
+export function setLinkMode(mode = null) {
   return {
     type: SET_LINK_MODE,
     mode,
@@ -249,7 +239,7 @@ export function requestSubjectRecords() {
 export function receiveSubjectRecords(pds, json) {
   return {
     type: RECEIVE_SUBJECT_RECORDS,
-    pds: pds,
+    pds,
     items: json,
   };
 }
@@ -257,23 +247,19 @@ export function receiveSubjectRecords(pds, json) {
 export function setNewSubjectFormErrors(errors) {
   return {
     type: SET_NEW_SUBJECT_FORM_ERRORS,
-    errors: errors,
+    errors,
   };
 }
 
 export function fetchSubjectRecords(pds, subject) {
   return dispatch => {
     dispatch(requestSubjectRecords());
-    var url = 'api/protocoldatasources/';
-    url += pds.id;
-    url += '/subjects/';
-    url += subject.id;
-    url += '/records/';
+    const url = `api/protocoldatasources/${pds.id}/subjects/${subject.id}/records/`;
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())

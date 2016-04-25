@@ -1,4 +1,5 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+/* global token csrf_token*/
+/* eslint no-param-reassign: ["error", { "props": false }]*/
 export const SET_ACTIVE_RECORD = 'SET_ACTIVE_RECORD';
 export const REQUEST_LABELS = 'REQUEST_LABELS';
 export const RECEIVE_LABELS = 'RECEIVE_LABELS';
@@ -27,27 +28,25 @@ import * as SubjectActions from './subject';
 function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
-  } else {
-    var error = new Error(response.statusText);
-    error.response = response;
-    return error;
   }
+  const error = new Error(response.statusText);
+  error.response = response;
+  return error;
 }
 
 function checkLinkAction(json) {
   if (json.success) {
-    return json
-  } else {
-    var error = new Error(json.error)
-    throw error
+    return json;
   }
+  const error = new Error(json.error);
+  throw error;
 }
 
 export function clearRecordState() {
   return {
     type: CLEAR_RECORD_STATE,
   };
-};
+}
 
 export function setActiveRecord(record) {
   return {
@@ -59,14 +58,14 @@ export function setActiveRecord(record) {
 export function setPendingLinkedRecord(record) {
   return {
     type: SET_PENDING_LINKED_RECORD,
-    record: record,
+    record,
   };
 }
 
 export function setSelectedLinkType(linkId) {
   return {
     type: SET_SELECTED_LINK_TYPE,
-    linkId: linkId,
+    linkId,
   };
 }
 
@@ -92,7 +91,7 @@ export function receiveLabels(json) {
     isFetching: false,
     receivedAt: Date.now(),
   };
-};
+}
 
 export function requestRecords() {
   return {
@@ -101,21 +100,20 @@ export function requestRecords() {
 }
 
 export function receiveRecords(pds, json) {
-  var records = json.map(function (record) {
+  const records = json.map(record => {
     record.pds = pds.id;
-    pds.driver_configuration.labels.forEach(function (label) {
-      if (label[0] == record.label) {
+    // Map record label descriptions
+    pds.driver_configuration.labels.forEach(label => {
+      if (label[0] === record.label) {
         record.label_desc = label[1];
       }
     });
-
     return record;
   });
-
   return {
     type: RECEIVE_RECORDS,
     items: records,
-    pds: pds,
+    pds,
   };
 }
 
@@ -123,14 +121,14 @@ export function updateRecordRequest() {
   return {
     type: UPDATE_RECORD_REQUEST,
   };
-};
+}
 
 export function updateRecordSuccess(record) {
   return dispatch => {
     dispatch({
       type: UPDATE_RECORD_SUCCESS,
       isFetching: false,
-      record: record,
+      record,
     });
     dispatch(NotificationActions.addNotification(
       {
@@ -141,23 +139,17 @@ export function updateRecordSuccess(record) {
     ));
     dispatch(NotificationActions.renderNotification());
   };
-};
+}
 
 export function updateRecord(pdsId, subjectId, record) {
+  const url = `api/protocoldatasources/${pdsId}/subjects/${subjectId}/record/${record.id}/`;
   return dispatch => {
     dispatch(updateRecordRequest());
-    var url = 'api/protocoldatasources/';
-    url += pdsId;
-    url += '/subjects/';
-    url += subjectId;
-    url += '/record/';
-    url += record.id;
-    url += '/';
     fetch(url, {
       method: 'PUT',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
         'X-CSRFToken': csrf_token,
       },
       body: JSON.stringify(record),
@@ -169,23 +161,18 @@ export function updateRecord(pdsId, subjectId, record) {
 }
 
 export function fetchRecords(pds, subjectId) {
+  const url = `api/protocoldatasources/${pds.id}/subjects/${subjectId}/records/`;
   return dispatch => {
     // If not authorized don't bother requesting records
     if (!pds.authorized) {
       return dispatch(receiveRecords(pds, []));
-    };
-
+    }
     dispatch(requestRecords());
-    var url = 'api/protocoldatasources/';
-    url += pds.id;
-    url += '/subjects/';
-    url += subjectId;
-    url += '/records/';
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
@@ -193,155 +180,141 @@ export function fetchRecords(pds, subjectId) {
   };
 }
 
-export function setEditLabelMode(mode=null) {
+export function setEditLabelMode(mode = null) {
   return {
     type: SET_EDIT_LABEL_MODE,
     mode,
   };
 }
 
-export function requestRecordLinks(){
+export function requestRecordLinks() {
   return {
     type: REQUEST_RECORD_LINKS,
-  }
+  };
 }
 
-export function receiveRecordLinks(json){
+export function receiveRecordLinks(json) {
   return {
     type: RECEIVE_RECORD_LINKS,
     links: json,
-  }
+  };
 }
 
-export function dismissLinkModal(){
+export function dismissLinkModal() {
   return {
     type: DISMISS_LINK_TYPE_MODAL,
-  }
+  };
 }
 
 export function fetchRecordLinks(pdsId, subjectId, recordId) {
+  const url = `api/protocoldatasources/${pdsId}/subjects/${subjectId}/record/${recordId}/links/`;
   return dispatch => {
     dispatch(requestRecordLinks());
-    var url = 'api/protocoldatasources/'
-    url += pdsId;
-    url += '/subjects/';
-    url += subjectId;
-    url += '/record/';
-    url += recordId;
-    url += '/links/';
     return fetch(url, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
     })
       .then(response => response.json())
-      .then(json => dispatch(receiveRecordLinks(json)))
+      .then(json => dispatch(receiveRecordLinks(json)));
   };
 }
 
 export function createRecordLinkRequest() {
   return {
     type: CREATE_RECORD_LINK_REQUEST,
-  }
+  };
 }
 
 export function createRecordLinkSuccess(json, pds, subjectId, recordId) {
   return dispatch => {
-    dispatch(fetchRecordLinks(pds, subjectId, recordId))
-    dispatch(dismissLinkModal())
-    dispatch(SubjectActions.setLinkMode(false))
+    dispatch(fetchRecordLinks(pds, subjectId, recordId));
+    dispatch(dismissLinkModal());
+    dispatch(SubjectActions.setLinkMode(false));
     dispatch({
-        type: CREATE_RECORD_LINK_SUCCESS,
-    })
-  }
+      type: CREATE_RECORD_LINK_SUCCESS,
+    });
+  };
 }
 
 export function createRecordLinkFailure(error) {
   return {
     type: CREATE_RECORD_LINK_FAILURE,
-    error: error,
-  }
+    error,
+  };
 }
 
 export function createRecordLink(primaryRecord, secondaryRecord) {
   return (dispatch, getState) => {
-    const state = getState()
+    const state = getState();
+    const url = `api/protocoldatasources/${primaryRecord.pds}/subjects/` +
+    `${state.subject.activeSubject.id}/record/${primaryRecord.id}/links/`;
     dispatch(createRecordLinkRequest());
-    var url = 'api/protocoldatasources/'
-    url += primaryRecord.pds;
-    url += '/subjects/';
-    url += state.subject.activeSubject.id;
-    url += '/record/';
-    url += primaryRecord.id;
-    url += '/links/';
-    var data = {
-      primaryRecord: primaryRecord,
-      secondaryRecord: secondaryRecord,
-      linkType: state.record.selectedLinkType
-    }
+    const data = {
+      primaryRecord,
+      secondaryRecord,
+      linkType: state.record.selectedLinkType,
+    };
     fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
       body: JSON.stringify(data),
     })
       .then(response => response.json())
       .then(checkLinkAction)
-      .then(json => dispatch(createRecordLinkSuccess(json, primaryRecord.pds, state.subject.activeSubject.id, primaryRecord.id)))
-      .catch(error => dispatch(createRecordLinkFailure(error)))
+      .then(json => dispatch(
+        createRecordLinkSuccess(
+          json, primaryRecord.pds, state.subject.activeSubject.id, primaryRecord.id)))
+      .catch(error => dispatch(createRecordLinkFailure(error)));
   };
 }
 
 export function deleteRecordLinkRequest() {
   return {
     type: DELETE_RECORD_LINK_REQUEST,
-  }
+  };
 }
 
 export function deleteRecordLinkSuccess(json, linkId) {
   return {
     type: DELETE_RECORD_LINK_SUCCESS,
-    linkId: linkId,
-  }
+    linkId,
+  };
 }
 
 export function deleteRecordLinkFailure(error) {
   return {
     type: DELETE_RECORD_LINK_FAILURE,
-    error: error,
-  }
+    error,
+  };
 }
 
 export function deleteRecordLink(primaryRecord, linkId) {
   return (dispatch, getState) => {
-    const state = getState()
+    const state = getState();
     dispatch(deleteRecordLinkRequest());
-    var url = 'api/protocoldatasources/'
-    url += primaryRecord.pds;
-    url += '/subjects/';
-    url += state.subject.activeSubject.id;
-    url += '/record/';
-    url += primaryRecord.id;
-    url += '/links/';
-    var data = {
-      primaryRecord: primaryRecord,
-      linkId: linkId
-    }
+    const url = `api/protocoldatasources/${primaryRecord.pds}/subjects/` +
+    `${state.subject.activeSubject.id}/record/${primaryRecord.id}/links/`;
+    const data = {
+      primaryRecord,
+      linkId,
+    };
     fetch(url, {
       method: 'DELETE',
       headers: {
         Accept: 'application/json',
-        Authorization: 'token ' + token,
+        Authorization: `token ${token}`,
       },
       body: JSON.stringify(data),
     })
       .then(response => response.json())
       .then(checkLinkAction)
       .then(json => dispatch(deleteRecordLinkSuccess(json, linkId)))
-      .catch(error => dispatch(deleteRecordLinkFailure(error)))
+      .catch(error => dispatch(deleteRecordLinkFailure(error)));
   };
 }
