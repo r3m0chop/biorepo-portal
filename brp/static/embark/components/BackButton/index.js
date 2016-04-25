@@ -15,12 +15,12 @@ class BackButton extends React.Component {
     var divStyle = {
       backgroundColor: 'white',
       opacity: '0.7',
-      width: '100px',
-      position: 'absolute',
+      width: '75px',
+      position: 'fixed',
       zIndex: 99,
       left: '90px',
       bottom: '10px',
-      height: '100px',
+      height: '75px',
       textAlign: 'center',
       borderRadius: '50%',
       boxShadow: '4px 4px 4px rgba(204, 197, 185, 0.4)',
@@ -31,7 +31,7 @@ class BackButton extends React.Component {
       fontSize: '2em',
       color: '#7AC29A',
       position: 'relative',
-      top: '30px',
+      top: '20px',
     };
     return (
       <div onClick={this.handleClick.bind(this)} style={divStyle}>
