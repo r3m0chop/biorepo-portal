@@ -4,7 +4,7 @@ import { REQUEST_PROTOCOLS, RECEIVE_PROTOCOLS, SET_ACTIVE_PROTOCOL, REQUEST_PROT
 const initialState = {
   isFetching: false,
   items: [],
-  activeProtocol: null,
+  activeProtocolId: null,
   orgs: [],
 };
 
@@ -22,7 +22,7 @@ function protocol(state = initialState, action) {
       });
     case SET_ACTIVE_PROTOCOL:
       return Object.assign({}, state, {
-        activeProtocol: action.protocol,
+        activeProtocolId: action.protocolId,
       });
     case REQUEST_PROTOCOL_ORGS:
       return Object.assign({}, state, {

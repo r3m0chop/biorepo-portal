@@ -19,16 +19,16 @@ class SubjectCardEdit extends React.Component{
 
   restoreSubject() {
     // Restores the current Subject view with server's subject state
-    this.props.dispatch(SubjectActions.fetchSubject(this.props.protocol.activeProtocol.id,
+    this.props.dispatch(SubjectActions.fetchSubject(this.props.protocol.activeProtocolId,
       this.props.subject.activeSubject.id));
   }
 
   handleSaveClick(e) {
     const { dispatch } = this.props;
-    var protocol = this.props.protocol.activeProtocol;
+    var protocolId = this.props.protocol.activeProtocolId;
     var subject = this.props.subject.activeSubject;
     if (this.isValid()) {
-      dispatch(SubjectActions.updateSubject(protocol, subject));
+      dispatch(SubjectActions.updateSubject(protocolId, subject));
     } else {
       alert('form is invalid');
     }
@@ -122,7 +122,7 @@ function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
-      activeProtocol: state.protocol.activeProtocol,
+      activeProtocolId: state.protocol.activeProtocolId,
       orgs: state.protocol.orgs,
     },
     subject: {

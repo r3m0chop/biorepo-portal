@@ -139,7 +139,7 @@ export function addSubjectRequest() {
   };
 }
 
-export function addSubjectSuccess(protocol) {
+export function addSubjectSuccess(protocolId) {
   return (dispatch, getState) => {
     const subjects = getState().subject.items;
     dispatch(NotificationActions.addNotification(
@@ -154,7 +154,7 @@ export function addSubjectSuccess(protocol) {
     // We shouldn't have to retrieve state from server here.
     // At the most we should get back servers version of the
     // added subject.
-    dispatch(fetchSubjects(protocol.id));
+    dispatch(fetchSubjects(protocolId));
     dispatch({
       type: ADD_SUBJECT_SUCCESS,
     });
@@ -169,10 +169,10 @@ export function addSubjectFailure(error) {
   };
 }
 
-export function addSubject(protocol, subject) {
+export function addSubject(protocolId, subject) {
   return dispatch => {
     dispatch(addSubjectRequest());
-    var url = 'api/protocols/' + protocol.id + '/subjects/create';
+    var url = 'api/protocols/' + protocolId + '/subjects/create';
     return fetch(url, {
       method: 'POST',
       headers: {
@@ -184,7 +184,7 @@ export function addSubject(protocol, subject) {
     })
       .then(response => response.json())
       .then(checkAddSubject)
-      .then(subject => dispatch(addSubjectSuccess(protocol)))
+      .then(subject => dispatch(addSubjectSuccess(protocolId)))
       .catch(errors => dispatch(addSubjectFailure(errors)));
   };
 }
@@ -214,10 +214,10 @@ export function updateSubjectSuccess(subject) {
   };
 }
 
-export function updateSubject(protocol, subject) {
+export function updateSubject(protocolId, subject) {
   return dispatch => {
     dispatch(updateSubjectRequest());
-    var url = 'api/protocols/' + protocol.id + '/subjects/' + subject.id;
+    var url = 'api/protocols/' + protocolId + '/subjects/' + subject.id;
     return fetch(url, {
       method: 'PUT',
       headers: {

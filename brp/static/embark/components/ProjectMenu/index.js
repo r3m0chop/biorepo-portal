@@ -19,7 +19,7 @@ class ProjectMenu extends React.Component {
   }
 
   handleClick(protocol) {
-    this.props.dispatch(ProtocolActions.setActiveProtocol(protocol));
+    this.props.dispatch(ProtocolActions.setActiveProtocol(protocol.Id));
     this.props.dispatch(SubjectActions.fetchSubjects(protocol.id));
   }
 

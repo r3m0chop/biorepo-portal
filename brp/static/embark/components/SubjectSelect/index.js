@@ -13,11 +13,12 @@ class SubjectSelect extends React.Component {
 
   constructor(props) {
     super(props);
+    var manageExternalIDs = false
   }
 
   componentDidMount() {
     const { dispatch } = this.props;
-
+    dispatch(ProtocolActions.setActiveProtocol(this.props.params.id))
     // Check to see if subjects are loaded, if not fetch them
     if (
       (!this.props.subject.items || this.props.subject.items.length == 0) &&
@@ -31,9 +32,6 @@ class SubjectSelect extends React.Component {
     const subject = row.props.data.subject;
     const { dispatch } = this.props;
 
-    // Update state with new active subject
-    dispatch(SubjectActions.setActiveSubject(subject));
-
     // Push to the correct pathname (and therefore view)
     this.props.history.push({
       pathname: 'dataentry/protocol/' +
@@ -43,41 +41,61 @@ class SubjectSelect extends React.Component {
     });
   }
 
-    handleNewSubject() {
-      const { dispatch } = this.props;
-      dispatch(SubjectActions.setAddSubjectMode(true));
-      dispatch(ProtocolActions.setActiveProtocol(this.props.protocol.activeProtocol));
+  handleNewSubject() {
+    const { dispatch } = this.props;
+    dispatch(SubjectActions.setAddSubjectMode(true));
+    dispatch(ProtocolActions.setActiveProtocol(this.props.protocol.activeProtocolId));
+  }
+
+  getActiveProtocol() {
+    if (this.props.protocol.items){
+      var activeProtocol = {};
+      this.props.protocol.items.forEach(function(protocol){
+        if (protocol.id == parseInt(this.props.protocol.activeProtocolId)){
+          activeProtocol = protocol
+        }
+      }, this)
     }
+    return activeProtocol
+  }
 
     render() {
-
       // If this view is navigated to directly. Get active protocol based on param
-      if (this.props.protocol.activeProtocol == null) {
-
-        // Iterate over loaded protocols to find current activeProtocol
-        this.props.protocol.items.forEach(function (protocol) {
-
-          // Normalize datatypes
-          if (this.props.params.id == parseInt(protocol.id)) {
-            this.props.protocol.activeProtocol = protocol;
-          }
-        }, this);
-      }
-
       const subjects = this.props.subject.items;
-      const protocol = this.props.protocol.activeProtocol;
+      const protocol = this.getActiveProtocol();
 
+      if (protocol){
+        if (this.props.params.id == parseInt(protocol.id)) {
+          this.props.protocol.activeProtocol = protocol;
+          protocol.data_sources.forEach(function(ds){
+            // HACK obtains datasource Id
+            var pdsId = parseInt(ds.slice(ds.length-2,ds.length-1))
+            if (pdsId == 3) {
+              this.manageExternalIDs = true
+            }
+          }, this)
+        }
+      }
+      var columns = ['Organization', 'MRN', 'First Name', 'Last Name', 'Birth Date']
+      if (this.manageExternalIDs) {
+        columns.push('External IDs')
+      }
       // Transform subjects into Griddle friendly format
       // jscs:disable
       var subs = [];
       if (subjects) {
         var subs = subjects.map(function (sub) {
+          var external_ids = ''
+          sub.external_ids.forEach(function(exId){
+            external_ids += exId.label_desc + ': ' + exId.record_id + '\n'
+          }, this)
           return {
             'Organization': sub.organization_name,
             'MRN': sub.organization_subject_id,
             'First Name': sub.first_name,
             'Last Name': sub.last_name,
             'Birth Date': sub.dob,
+            'External IDs': external_ids,
             'subject': sub
           };
         });
@@ -114,7 +132,7 @@ class SubjectSelect extends React.Component {
                 onRowClick={this.handleClick.bind(this)}
                 resultsPerPage={10}
                 results={subs}
-                columns={['Organization', 'MRN', 'First Name', 'Last Name', 'Birth Date']}
+                columns={columns}
                 tableClassName={'subject-table'}
                 useGriddleStyles={false}
                 customNoDataComponent={LoadingGif}
@@ -130,7 +148,7 @@ function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
-      activeProtocol: state.protocol.activeProtocol,
+      activeProtocolId: state.protocol.activeProtocolId,
       orgs: state.protocol.orgs,
     },
     subject: {

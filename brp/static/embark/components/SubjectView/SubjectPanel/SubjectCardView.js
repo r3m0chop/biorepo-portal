@@ -42,7 +42,6 @@ function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
-      activeProtocol: state.protocol.activeProtocol,
     },
     subject: {
       items: state.subject.items,

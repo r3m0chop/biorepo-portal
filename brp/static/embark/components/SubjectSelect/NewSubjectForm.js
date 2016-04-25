@@ -18,11 +18,11 @@ export class NewSubjectForm extends React.Component{
 
   handleSaveClick(e) {
     e.preventDefault();
-    const protocol = this.props.protocol.activeProtocol;
+    const protocolId = this.props.protocol.activeProtocolId;
     const subject = this.props.subject.newSubject;
     const { dispatch } = this.props;
     if (this.isValid()) {
-      dispatch(SubjectActions.addSubject(protocol, subject));
+      dispatch(SubjectActions.addSubject(protocolId, subject));
     }
   }
 
@@ -151,7 +151,7 @@ function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
-      activeProtocol: state.protocol.activeProtocol,
+      activeProtocolId: state.protocol.activeProtocolId,
       orgs: state.protocol.orgs,
     },
     subject: {

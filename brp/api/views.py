@@ -68,6 +68,7 @@ class ProtocolViewSet(viewsets.ModelViewSet):
         return Response(protocols)
 
     def getExternalRecords(self, pds, subject):
+        # TODO: Need to cache this heavily!
         er_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD)
         er_label_rh = ServiceClient.get_rh_for(record_type=ServiceClient.EXTERNAL_RECORD_LABEL)
         lbls = er_label_rh.query()
@@ -218,16 +219,38 @@ class ProtocolViewSet(viewsets.ModelViewSet):
         """
         Return a single requested subject
         """
-        s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
-        o_rh = ServiceClient.get_rh_for(record_type=ServiceClient.ORGANIZATION)
-        try:
-            subject = s_rh.get(id=subject)
-            organization = o_rh.get(id=subject.organization_id)
-        except:
-            return Response("", status=404)
-        sub = json.loads(Subject.json_from_identity(subject))
-        sub['organization_name'] = organization.name
-        return Response(sub)
+        p = self.get_object()
+        if p.isUserAuthorized(request.user):
+            protocoldatasources = p.getProtocolDataSources()
+
+            for pds in protocoldatasources:
+                if pds.driver == 3:
+                    ExIdSource = pds
+                    manageExternalIDs = True
+            s_rh = ServiceClient.get_rh_for(record_type=ServiceClient.SUBJECT)
+            o_rh = ServiceClient.get_rh_for(record_type=ServiceClient.ORGANIZATION)
+            try:
+                subject = s_rh.get(id=subject)
+                organization = o_rh.get(id=subject.organization_id)
+            except:
+                return Response("", status=404)
+            sub = json.loads(Subject.json_from_identity(subject))
+            sub['organization_name'] = organization.name
+            sub['external_records'] = []
+            for pds in protocoldatasources:
+                sub['external_records'].extend(self.getExternalRecords(pds, sub))
+            if manageExternalIDs:
+                # Break out external ids into a separate object for ease of use
+                sub['external_ids'] = []
+                for record in sub['external_records']:
+                    if record['external_system'] == 3:
+                        sub['external_ids'].append(record)
+            return Response(sub)
+        else:
+            return Response(
+                {"detail": "You are not authorized to view subjects in this protocol"},
+                status=403
+            )
 
     @list_route()
     def organizations(self, request, *args, **kwargs):
@@ -284,9 +307,8 @@ class ProtocolViewSet(viewsets.ModelViewSet):
 
             for sub in subs:
                 sub['external_records'] = []
-                # TODO We are no longer actively getting external records
-                # for pds in protocoldatasources:
-                    # sub['external_records'].extend(self.getExternalRecords(pds, sub))
+                for pds in protocoldatasources:
+                    sub['external_records'].extend(self.getExternalRecords(pds, sub))
                 if manageExternalIDs:
                     # Break out external ids into a separate object for ease of use
                     sub['external_ids'] = []
@@ -472,6 +494,7 @@ class ProtocolDataSourceViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'])
     def get_subject_record(self, request, *args, **kwargs):
+        # TODO Add external id get here.
         pds = self.get_object()
         if pds.protocol.isUserAuthorized(request.user):
             res = ServiceClient.ext_rec_client.get(id=kwargs['record_id'])
