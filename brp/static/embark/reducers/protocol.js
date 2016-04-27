@@ -1,5 +1,5 @@
 import { REQUEST_PROTOCOLS, RECEIVE_PROTOCOLS, SET_ACTIVE_PROTOCOL, REQUEST_PROTOCOL_ORGS,
-         RECEIVE_PROTOCOL_ORGS, SET_ADD_SUBJECT_MODE } from '../actions/protocol';
+         RECEIVE_PROTOCOL_ORGS } from '../actions/protocol';
 
 const initialState = {
   isFetching: false,
@@ -9,7 +9,7 @@ const initialState = {
 };
 
 function protocol(state = initialState, action) {
-  switch (action.type){
+  switch (action.type) {
     case REQUEST_PROTOCOLS:
       return Object.assign({}, state, {
         items: [],
@@ -22,7 +22,7 @@ function protocol(state = initialState, action) {
       });
     case SET_ACTIVE_PROTOCOL:
       return Object.assign({}, state, {
-        activeProtocolId: action.protocolId,
+        activeProtocolId: parseInt(action.protocolId, 10),
       });
     case REQUEST_PROTOCOL_ORGS:
       return Object.assign({}, state, {

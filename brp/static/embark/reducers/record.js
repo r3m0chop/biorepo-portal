@@ -17,8 +17,10 @@ const initialState = {
   linkError: null,
 };
 
+let activeLinks = [];
+
 function record(state = initialState, action) {
-  switch (action.type){
+  switch (action.type) {
     case SET_ACTIVE_RECORD:
       return Object.assign({}, state, {
         activeRecord: action.activeRecord,
@@ -28,11 +30,10 @@ function record(state = initialState, action) {
         return Object.assign({}, state, {
           editLabelMode: action.mode,
         });
-      } else {
-        return Object.assign({}, state, {
-          editLabelMode: !state.editLabelMode,
-        });
       }
+      return Object.assign({}, state, {
+        editLabelMode: !state.editLabelMode,
+      });
 
     case RECEIVE_RECORDS:
       return Object.assign({}, state, {
@@ -59,7 +60,7 @@ function record(state = initialState, action) {
         pendingLinkedRecord: null,
         linkError: null,
         selectedLinkType: null,
-      })
+      });
     case SET_SELECTED_LINK_TYPE:
       return Object.assign({}, state, {
         selectedLinkType: action.linkId,
@@ -69,7 +70,7 @@ function record(state = initialState, action) {
     case REQUEST_RECORD_LINKS:
       return Object.assign({}, state, {
         isFetching: true,
-      })
+      });
     case RECEIVE_RECORD_LINKS:
       return Object.assign({}, state, {
         activeLinks: action.links,
@@ -78,16 +79,17 @@ function record(state = initialState, action) {
     case CREATE_RECORD_LINK_FAILURE:
       return Object.assign({}, state, {
         linkError: action.error.message,
-      })
+      });
     case DELETE_RECORD_LINK_SUCCESS:
-      var activeLinks = state.activeLinks.filter(function (link) {
-        if (link.id != action.linkId) {
+      activeLinks = state.activeLinks.filter((link) => {
+        if (link.id !== action.linkId) {
           return link;
         }
+        return null;
       });
       return Object.assign({}, state, {
-        activeLinks: activeLinks,
-      })
+        activeLinks,
+      });
     default:
       return state;
   }

@@ -5,8 +5,10 @@ const initialState = {
   items: [],
 };
 
+let notifications = [];
+
 function notification(state = initialState, action) {
-  switch (action.type){
+  switch (action.type) {
     case RENDER_NOTIFICATION:
       return Object.assign({}, state, {
         items: [],
@@ -16,10 +18,11 @@ function notification(state = initialState, action) {
         items: state.items.concat(action.notification),
       });
     case REMOVE_NOTIFICATION:
-      var notifications = state.items.filter(function (notification) {
-        if (notification.message != action.notification.message) {
+      notifications = state.items.filter(() => {
+        if (this.message !== action.notification.message) {
           return notification;
         }
+        return null;
       });
 
       return Object.assign({}, state, {

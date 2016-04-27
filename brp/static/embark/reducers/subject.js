@@ -1,18 +1,16 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+/* eslint-disable no-param-reassign*/
 import { REQUEST_SUBJECTS, RECEIVE_SUBJECTS, SET_ACTIVE_SUBJECT,
          SHOW_INFO_PANEL, HIDE_INFO_PANEL, SHOW_ACTION_PANEL,
          HIDE_ACTION_PANEL, UPDATE_SUBJECT_SUCCESS, UPDATE_SUBJECT_REQUEST,
          SET_LINK_MODE, ADD_SUBJECT_SUCCESS, ADD_SUBJECT_FAILURE,
          SET_ADD_SUBJECT_MODE, SET_NEW_SUBJECT, REQUEST_SUBJECT_SUCCESS,
          SET_NEW_SUBJECT_FORM_ERRORS } from '../actions/subject';
-import rootReducer from './index';
 
-const initialNewSubject = {
+let initialNewSubject = {
   organization: null,
   dob: null,
   first_name: null,
   last_name: null,
-  organization: null,
   organization_subject_id: null,
   organization_subject_id_validation: null,
 };
@@ -36,7 +34,7 @@ const initialState = {
 };
 
 function subject(state = initialState, action) {
-  switch (action.type){
+  switch (action.type) {
     case REQUEST_SUBJECTS:
       return Object.assign({}, state, {
         items: [],
@@ -46,10 +44,9 @@ function subject(state = initialState, action) {
     case RECEIVE_SUBJECTS:
 
       // Create a validation entry for org subject ID
-      action.subjects.map(function (subject) {
-        return subject.organization_subject_id_validation = subject.organization_subject_id;
+      action.subjects.forEach((sub) => {
+        sub.organization_subject_id_validation = sub.organization_subject_id;
       });
-
       return Object.assign({}, state, {
         items: action.subjects,
         isFetching: false,
@@ -93,6 +90,8 @@ function subject(state = initialState, action) {
     case UPDATE_SUBJECT_SUCCESS:
       action.subject.organization_subject_id_validation = action.subject.organization_subject_id;
       action.subject.organization_id = action.subject.organization;
+      action.subject.external_ids = state.activeSubject.external_ids;
+      action.subject.external_records = state.activeSubject.external_records;
       return Object.assign({}, state, {
         isSaving: false,
         updateFormErrors: null,
@@ -103,14 +102,12 @@ function subject(state = initialState, action) {
         return Object.assign({}, state, {
           linkMode: action.mode,
         });
-      } else {
-        return Object.assign({}, state, {
-          linkMode: !state.linkMode,
-        });
       }
-
+      return Object.assign({}, state, {
+        linkMode: !state.linkMode,
+      });
     case SET_ADD_SUBJECT_MODE:
-      const initialNewSubject = Object.assign({}, initialNewSubject);
+      initialNewSubject = Object.assign({}, initialNewSubject);
       if (action.mode != null) {
         return Object.assign({}, state, {
           addSubjectMode: action.mode,
@@ -120,16 +117,16 @@ function subject(state = initialState, action) {
           },
           newSubject: initialNewSubject,
         });
-      } else {
-        return Object.assign({}, state, {
-          addSubjectMode: !state.addSubjectMode,
-          newFormErrors: {
-            server: null,
-            form: {},
-          },
-          newSubject: initialNewSubject,
-        });
       }
+      return Object.assign({}, state, {
+        addSubjectMode: !state.addSubjectMode,
+        newFormErrors: {
+          server: null,
+          form: {},
+        },
+        newSubject: initialNewSubject,
+      });
+
 
     case ADD_SUBJECT_SUCCESS:
       return Object.assign({}, state, {
@@ -148,7 +145,6 @@ function subject(state = initialState, action) {
       return Object.assign({}, state, {
         newFormErrors: {
           form: action.errors,
-          form: {},
         },
       });
     default:
