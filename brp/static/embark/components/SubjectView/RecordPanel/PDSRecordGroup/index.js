@@ -1,12 +1,8 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-// jscs:disable maximumLineLength
 import React from 'react';
 import { connect } from 'react-redux';
 import SkyLight from 'react-skylight';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
-import RaisedButton from 'material-ui/lib/raised-button';
 import ContentAdd from 'material-ui/lib/svg-icons/content/add';
-import LoadingGif from '../../../LoadingGif';
 import NewRecordLabelSelect from './NewRecordLabelSelect';
 import * as SubjectActions from '../../../../actions/subject';
 import * as RecordActions from '../../../../actions/record';
@@ -16,32 +12,42 @@ class PDSRecordGroup extends React.Component {
 
   constructor(props) {
     super(props);
+    this.handleViewRecordClick = this.handleViewRecordClick.bind(this);
+    this.handleLinkRecordClick = this.handleLinkRecordClick.bind(this);
+    this.handleEditRecordClick = this.handleEditRecordClick.bind(this);
+  }
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    if (this.props.records.length === 0) {
+      dispatch(PDSActions.fetchPDSLinks(this.props.pds.id));
+    }
+  }
+
+  componentWillUnmount() {
+    // Make sure that record state returns to its initialState once this view unmounts
+    const { dispatch } = this.props;
+    dispatch(RecordActions.clearRecordState());
   }
 
   handleRecordClick(record, pds) {
     const dispatch = this.props.dispatch;
-
     if (this.props.linkMode) {
-      if (this.props.activeRecord.id == record.id) {
+      if (this.props.activeRecord.id === record.id) {
         dispatch(SubjectActions.setLinkMode());
         return;
-      };
+      }
       dispatch(RecordActions.setPendingLinkedRecord(record));
     } else {
-      dispatch(RecordActions.fetchRecordLinks(pds.id, this.props.subject.id, record.id))
+      dispatch(RecordActions.fetchRecordLinks(pds.id, this.props.subject.id, record.id));
       dispatch(RecordActions.setActiveRecord(record));
       dispatch(PDSActions.setActivePDS(pds));
     }
   }
 
   handleViewRecordClick() {
-    var url = '/dataentry/protocoldatasource/';
-    url += this.props.pds.id;
-    url += '/subject/';
-    url += this.props.subject.id;
-    url += '/record/';
-    url += this.props.activeRecord.id;
-    url += '/start/';
+    const url = `/dataentry/protocoldatasource/${this.props.pds.id}/subject/` +
+      `${this.props.subject.id}/record/${this.props.activeRecord.id}/start/`;
     window.location.href = url;
   }
 
@@ -55,31 +61,32 @@ class PDSRecordGroup extends React.Component {
     dispatch(RecordActions.setEditLabelMode());
   }
 
-  componentDidMount() {
-    const { dispatch } = this.props;
-    if (this.props.records.length == 0) {
-      dispatch(PDSActions.fetchPDSLinks(this.props.pds.id));
-    }
-  }
-
-  componentWillUnmount() {
-    // Make sure that record state returns to its initialState once this view unmounts
-    const { dispatch } = this.props;
-    dispatch(RecordActions.clearRecordState());
-  }
-
   isLinked(record) {
-    var linked = false
-    this.props.activeLinks.forEach(function(link) {
-      if (link.external_record.id == record.id){
-        linked = true
+    let linked = false;
+    this.props.activeLinks.forEach((link) => {
+      if (link.external_record.id === record.id) {
+        linked = true;
       }
-    }, this)
-    return linked
+    }, this);
+    return linked;
+  }
+
+  renderRecords(recordNodes) {
+    return (
+      recordNodes ?
+        <table className="table table-striped">
+          <thead>
+            <tr><th>Record ID</th><th>Record</th><th>Created</th><th>Modified</th></tr>
+          </thead>
+          <tbody>
+            {recordNodes}
+          </tbody>
+        </table> : <div>No Records</div>
+    );
   }
 
   render() {
-    var modalStyles = {
+    const modalStyles = {
       width: '25%',
       height: '200px',
       position: 'fixed',
@@ -93,58 +100,64 @@ class PDSRecordGroup extends React.Component {
       padding: '15px',
       boxShadow: '0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28)',
     };
-    var exRecStyle = {
+    const exRecStyle = {
       cursor: 'pointer',
       backgroundColor: '#ddecf9',
       borderTop: '1px solid #CCC5B9',
       borderBottom: '1px solid #CCC5B9',
     };
-    var pinStyle = {
-      color: 'coral',
-    };
 
     const pds = this.props.pds;
-    var records = this.props.subject.external_records.filter(function (record) {
-      if (pds.id == record.pds) {
+    const records = this.props.subject.external_records.filter((record) => {
+      if (pds.id === record.pds) {
         return record;
       }
+      return null;
     });
 
-    var recordNodes = null;
-    var activeLinks = this.props.activeLinks;
-    if (records.length != 0) {
-      var recordNodes = records.map(function (record, i) {
-        if (this.props.activeRecord != null && (this.props.activeRecord.id == record.id)) {
+    let recordNodes = null;
+    const activeLinks = this.props.activeLinks;
+    if (records.length !== 0) {
+      recordNodes = records.map((record, i) => {
+        let linkIcon = null;
+        // TODO: Factor out these record lines into their own components.
+        if (this.props.activeRecord != null && (this.props.activeRecord.id === record.id)) {
           return (
-            <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} style={exRecStyle} >
+            <tr
+              key={i}
+              onClick={() => this.handleRecordClick(record, this.props.pds)}
+              style={exRecStyle}
+            >
               <td>{record.id}</td>
               <td>{record.label_desc}</td>
               <td>{record.created}</td>
               <td>{record.modified}</td>
-              <td className="row-action" onClick={this.handleEditRecordClick.bind(this)}>Label</td>
-              <td className="row-action" onClick={this.handleLinkRecordClick.bind(this)}>Link</td>
-              <td className="row-action" onClick={this.handleViewRecordClick.bind(this)}>View</td>
+              <td className="row-action" onClick={this.handleEditRecordClick}>Label</td>
+              <td className="row-action" onClick={this.handleLinkRecordClick}>Link</td>
+              <td className="row-action" onClick={this.handleViewRecordClick}>View</td>
             </tr>
           );
-        } else {
-          var linkIcon = null;
-          if (activeLinks != null) {
-            if (this.isLinked(record)) {
-              linkIcon = <i className="ti-link"></i>
-            }
-          }
-          return (
-            <tr key={i} onClick={this.handleRecordClick.bind(this, record, this.props.pds)} className="ExternalRecord" >
-              <td>{record.id}</td>
-              <td>{linkIcon} {record.label_desc}</td>
-              <td>{record.created}</td>
-              <td>{record.modified}</td>
-            </tr>);
         }
+        if (activeLinks != null) {
+          if (this.isLinked(record)) {
+            linkIcon = <i className="ti-link"></i>;
+          }
+        }
+        return (
+          <tr
+            key={i}
+            onClick={() => this.handleRecordClick(record, this.props.pds)}
+            className="ExternalRecord"
+          >
+            <td>{record.id}</td>
+            <td>{linkIcon} {record.label_desc}</td>
+            <td>{record.created}</td>
+            <td>{record.modified}</td>
+          </tr>);
       }, this);
-    };
+    }
 
-    var addButtonStyle = {
+    const addButtonStyle = {
       marginLeft: '10px',
       marginTop: '10px',
       float: 'right',
@@ -153,43 +166,35 @@ class PDSRecordGroup extends React.Component {
     return (
       <div>
         <SkyLight ref="addRecordModal" dialogStyles={modalStyles}>
-          <NewRecordLabelSelect pds={this.props.pds}/>
+          <NewRecordLabelSelect pds={this.props.pds} />
         </SkyLight>
         <h5 className="category">{this.props.pds.display_label}
-          { this.props.pds.authorized ?
+          {this.props.pds.authorized ?
             <FloatingActionButton
               onClick={() => this.refs.addRecordModal.show()}
               backgroundColor={'#7AC29A'}
-              mini={true}
+              mini
               style={addButtonStyle}
             >
-              <ContentAdd/>
+              <ContentAdd />
             </FloatingActionButton>
           :
-          <FloatingActionButton
-            disabled={true}
-            mini={true}
-            style={addButtonStyle}
-          >
-            <ContentAdd/>
-          </FloatingActionButton> }
+            <FloatingActionButton
+              disabled
+              mini
+              style={addButtonStyle}
+            >
+              <ContentAdd />
+            </FloatingActionButton>}
 
         </h5>
         <div className="PDSRecords">
-          { this.props.pds.authorized ?
-            recordNodes ?
-            <table className="table table-striped">
-              <thead>
-                <tr><th>Record ID</th><th>Record</th><th>Created</th><th>Modified</th></tr>
-              </thead>
-              <tbody>
-                { recordNodes }
-              </tbody>
-            </table> : this.props.record.isFetching ? <LoadingGif /> : <div>No Records</div> :
-            <div> Not authorized for this Protocol Data Source </div>
+          {this.props.pds.authorized ?
+            this.renderRecords(recordNodes)
+            : <div> Not authorized for this Protocol Data Source </div>
           }
         </div>
-        <hr/>
+        <hr />
       </div>
     );
   }
@@ -197,6 +202,19 @@ class PDSRecordGroup extends React.Component {
 
 PDSRecordGroup.contextTypes = {
   history: React.PropTypes.object,
+};
+
+PDSRecordGroup.propTypes = {
+  dispatch: React.PropTypes.func,
+  protocol: React.PropTypes.object,
+  pds: React.PropTypes.object,
+  record: React.PropTypes.object,
+  records: React.PropTypes.array,
+  subject: React.PropTypes.object,
+  activeRecord: React.PropTypes.object,
+  activeLinks: React.PropTypes.array,
+  linkMode: React.PropTypes.bool,
+  selectedLabel: React.PropTypes.object,
 };
 
 function mapStateToProps(state) {

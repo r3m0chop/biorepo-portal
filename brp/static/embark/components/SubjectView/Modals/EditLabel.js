@@ -11,23 +11,20 @@ class EditLabelModal extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  handleCloseClick() {
-    const { dispatch } = this.props;
-    dispatch(RecordActions.setEditLabelMode());
+    this.handleCloseClick = this.handleCloseClick.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   onChange(e, index, value) {
-    var record =  this.props.activeRecord;
+    const record = this.props.activeRecord;
     const { dispatch } = this.props;
 
-    var label = this.props.activePDS.driver_configuration.labels.find(function (label) {
-      if (label[0] == value) {
-        return label;
+    const label = this.props.activePDS.driver_configuration.labels.find((lbl) => {
+      if (lbl[0] === value) {
+        return lbl;
       }
+      return null;
     });
-
     record.label = label[0];
     record.label_id = label[0];
     record.label_desc = label[1];
@@ -39,14 +36,19 @@ class EditLabelModal extends React.Component {
     dispatch(RecordActions.setEditLabelMode());
   }
 
+  handleCloseClick() {
+    const { dispatch } = this.props;
+    dispatch(RecordActions.setEditLabelMode());
+  }
+
   render() {
     const labels = this.props.activePDS.driver_configuration.labels;
     const editLabelModalStyle = {
-        left: '50%',
-        marginLeft: '-5em',
-        marginBottom: '3em',
-        position: 'fixed',
-        zIndex: '1000',
+      left: '50%',
+      marginLeft: '-5em',
+      marginBottom: '3em',
+      position: 'fixed',
+      zIndex: '1000',
     };
     const cardStyle = {
       padding: '15px',
@@ -54,15 +56,15 @@ class EditLabelModal extends React.Component {
       backgroundColor: 'white',
     };
     const backdropStyle = {
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        width: '100%',
-        height: '100%',
-        zIndex: 99,
-        display: 'block',
-        backgroundColor: 'rgba(0, 0, 0, 0.298039)',
-    }
+      position: 'fixed',
+      top: '0px',
+      left: '0px',
+      width: '100%',
+      height: '100%',
+      zIndex: 99,
+      display: 'block',
+      backgroundColor: 'rgba(0, 0, 0, 0.298039)',
+    };
     return (
       <section>
         <div style={backdropStyle}></div>
@@ -72,20 +74,21 @@ class EditLabelModal extends React.Component {
             <div className="more">
             </div>
             <div className="content">
-              <SelectField style={{ width:'100%' }}
-                onChange={this.onChange.bind(this)}
+              <SelectField
+                style={{ width: '100%' }}
+                onChange={this.onChange}
                 value={this.props.activeRecord.label}
               >
-                { labels.map(function (label, i) {
-                    return <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>;
-                  })
+                {labels.map((label, i) => (
+                  <MenuItem key={i} value={label[0]}>{label[1]}</MenuItem>))
                 }
               </SelectField>
             </div>
-            <RaisedButton style={{ width: '100%' }}
+            <RaisedButton
+              style={{ width: '100%' }}
               labelColor={Colors.red400}
               label="Cancel"
-              onClick={this.handleCloseClick.bind(this)}
+              onClick={this.handleCloseClick}
             />
           </div>
         </div>
@@ -93,6 +96,16 @@ class EditLabelModal extends React.Component {
     );
   }
 }
+
+EditLabelModal.propTypes = {
+  dispatch: React.PropTypes.func,
+  protocol: React.PropTypes.object,
+  subject: React.PropTypes.object,
+  activeRecord: React.PropTypes.object,
+  linkMode: React.PropTypes.bool,
+  selectedLabel: React.PropTypes.object,
+  activePDS: React.PropTypes.object,
+};
 
 function mapStateToProps(state) {
   return {

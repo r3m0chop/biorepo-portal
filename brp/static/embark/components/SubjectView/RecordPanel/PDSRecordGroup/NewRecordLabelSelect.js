@@ -9,58 +9,60 @@ import { connect } from 'react-redux';
 
 class NewRecordLabelSelect extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.handleRecordLabelSelect = this.handleRecordLabelSelect.bind(this);
+    this.handleNewRecordClick = this.handleNewRecordClick.bind(this);
+  }
+
   handleRecordLabelSelect(e, index, value) {
     const { dispatch } = this.props;
     dispatch(RecordActions.setSelectedLabel(value));
   }
 
   handleNewRecordClick() {
-    var url = '/dataentry/protocoldatasource/';
-    url += this.props.pds.id;
-    url += '/subject/';
-    url += this.props.subject.id;
-    url += '/create/?label_id=';
-    url += this.props.selectedLabel;
+    const url = `/dataentry/protocoldatasource/${this.props.pds.id}/subject/` +
+      `${this.props.subject.id}/create/?label_id=${this.props.selectedLabel}`;
     window.location.href = url;
   }
 
   render() {
     const labels = this.props.pds.driver_configuration.labels;
 
-    var selectStyle = {
-      marginLeft: '10px',
-    };
-
-    var buttonStyle = {
-      width:'auto',
-      marginTop:'20px',
-      marginLeft: '25%',
-    };
     return (
       <div>
         <div>
           <span>Select label for {this.props.pds.display_label} Record:</span>
-          <SelectField onChange={this.handleRecordLabelSelect.bind(this)}
-            style={{ width:'100%' }}
+          <SelectField
+            onChange={this.handleRecordLabelSelect}
+            style={{ width: '100%' }}
             value={this.props.selectedLabel}
           >
-            { labels.map(function (label, i) {
-              return (<MenuItem key={i} value={label[0]} primaryText={label[1]} />);
-            })}
+            {labels.map((label, i) => (
+              <MenuItem key={i} value={label[0]} primaryText={label[1]} />
+            ))}
           </SelectField>
         </div>
         <div>
-          <RaisedButton onClick={this.handleNewRecordClick.bind(this)}
+          <RaisedButton
+            onClick={this.handleNewRecordClick}
             label={'Create New'}
             labelColor={'#7AC29A'}
             type="submit"
-            style={{ width:'100%' }}
+            style={{ width: '100%' }}
           />
         </div>
       </div>
     );
   }
 }
+
+NewRecordLabelSelect.propTypes = {
+  dispatch: React.PropTypes.func,
+  subject: React.PropTypes.object,
+  selectedLabel: React.PropTypes.number,
+  pds: React.PropTypes.object,
+};
 
 function mapStateToProps(state) {
   return {
@@ -69,4 +71,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(NewRecordLabelSelect)
+export default connect(mapStateToProps)(NewRecordLabelSelect);

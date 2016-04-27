@@ -3,34 +3,36 @@ import { connect } from 'react-redux';
 import TextField from 'material-ui/lib/text-field';
 import * as SubjectActions from '../../../actions/subject';
 
-class SubjectTextField extends React.Component{
+class SubjectTextField extends React.Component {
 
   constructor(props) {
     super(props);
+    this.onChange = this.onChange.bind(this);
   }
 
   onChange(e) {
     // Check to see if we're editing an existing subject
     if (!this.props.new) {
       // Changing the input fields should update the state of the active subject
-      var sub = this.props.subject;
+      const sub = this.props.subject;
       sub[this.props.skey] = e.target.value;
       this.props.dispatch(SubjectActions.setActiveSubject(sub));
     } else {
-      var sub = this.props.newSubject;
+      const sub = this.props.newSubject;
       sub[this.props.skey] = e.target.value;
     }
   }
 
   render() {
+    let errorText = '';
     if (this.props.error) {
-      var errorText = 'This field is required.';
-    };
+      errorText = 'This field is required.';
+    }
 
     return (
       <TextField
-        onChange={this.onChange.bind(this)}
-        style={{ width:'100%', whiteSpace: 'nowrap' }}
+        onChange={this.onChange}
+        style={{ width: '100%', whiteSpace: 'nowrap' }}
         value={this.props.value}
         floatingLabelText={this.props.label}
         errorText={errorText}
@@ -38,6 +40,17 @@ class SubjectTextField extends React.Component{
     );
   }
 }
+
+SubjectTextField.propTypes = {
+  dispatch: React.PropTypes.func,
+  new: React.PropTypes.bool,
+  subject: React.PropTypes.object,
+  newSubject: React.PropTypes.object,
+  skey: React.PropTypes.string,
+  value: React.PropTypes.string,
+  error: React.PropTypes.string,
+  label: React.PropTypes.string,
+};
 
 function mapStateToProps(state) {
   return {

@@ -9,13 +9,8 @@ import RecordPanel from './RecordPanel';
 import EditLabelModal from './Modals/EditLabel';
 import * as ProtocolActions from '../../actions/protocol';
 import * as SubjectActions from '../../actions/subject';
-import * as PDSActions from '../../actions/pds';
 
 class SubjectView extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
 
   componentDidMount() {
     const { dispatch } = this.props;
@@ -29,7 +24,6 @@ class SubjectView extends React.Component {
     if (!this.props.protocol.activeProtocol) {
       dispatch(ProtocolActions.fetchProtocol(protocolId));
     }
-
   }
 
   render() {
@@ -38,17 +32,25 @@ class SubjectView extends React.Component {
     const path = this.props.location.pathname;
     return (subject ?
       <div className="subject-view">
-        <BackButton/>
-        <SubjectPanel subject={subject} edit={this.props.params.edit} path={path}/>
-        { this.props.editLabelMode ? <EditLabelModal/> : null }
+        <BackButton />
+        <SubjectPanel subject={subject} edit={this.props.params.edit} path={path} />
+        {this.props.editLabelMode ? <EditLabelModal /> : null}
         <RecordPanel subject={subject} />
-        { this.props.children }
       </div>
       :
-      <LoadingGif/>
+      <LoadingGif />
     );
   }
 }
+
+SubjectView.propTypes = {
+  dispatch: React.PropTypes.func,
+  subject: React.PropTypes.object,
+  protocol: React.PropTypes.object,
+  editLabelMode: React.PropTypes.bool,
+  location: React.PropTypes.object,
+  params: React.PropTypes.object,
+};
 
 function mapStateToProps(state) {
   return {

@@ -1,24 +1,17 @@
 import React from 'react';
-import { Link, History } from 'react-router';
-import { connect } from 'react-redux';
-import * as SubjectActions from '../../../actions/subject';
 import SubjectCardEdit from './SubjectCardEdit';
 import SubjectCardView from './SubjectCardView';
 
-class SubjectPanel extends React.Component {
-
-  constructor(props) {
-    super(props);
+const SubjectPanel = (props) => {
+  const path = props.path;
+  if (props.edit) {
+    return <SubjectCardEdit path={path} />;
   }
+  return <SubjectCardView path={path} />;
+};
 
-  render() {
-    const path = this.props.path;
-    if (this.props.edit) {
-      return <SubjectCardEdit path={path}/>;
-    } else {
-      return <SubjectCardView path={path}/>;
-    }
-  }
-}
-
-export default connect()(SubjectPanel);
+SubjectPanel.propTypes = {
+  edit: React.PropTypes.string,
+  path: React.PropTypes.string,
+};
+export default SubjectPanel;

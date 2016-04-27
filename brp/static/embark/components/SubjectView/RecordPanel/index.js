@@ -1,19 +1,13 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
-import SkyLight from 'react-skylight';
 import PDSRecordGroup from './PDSRecordGroup';
 import LinkModeBanner from '../Modals/LinkModeBanner';
 import LinkRecord from '../Modals/LinkRecord';
 import LinkedRecords from './LinkedRecords';
 import * as SubjectActions from '../../../actions/subject';
-import * as RecordActions from '../../../actions/record';
 import { connect } from 'react-redux';
 
 class RecordPanel extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
 
   componentDidMount() {
     const { dispatch } = this.props;
@@ -21,43 +15,56 @@ class RecordPanel extends React.Component {
   }
 
   render() {
-    const dispatch = this.props.dispatch;
-    const pds = this.props.pds.items;
+    const pds = this.props.pds;
     const records = this.props.record.items;
-    if (pds) {
-      var pdsNodes = pds.map(function (pds, i) {
-        var pds_records = records.filter(function (record) {
-          if (pds.id == record.pds) {
+    let pdsNodes = null;
+    if (pds.items) {
+      pdsNodes = pds.items.map((_pds, i) => {
+        const pdsRecords = records.filter((record) => {
+          if (_pds.id === record.pds) {
             return record;
           }
+          return null;
         });
-
         return (
-          <PDSRecordGroup key={i} pds={pds} records={pds_records}/>
+          <PDSRecordGroup key={i} pds={_pds} records={pdsRecords} />
         );
-
       }, this);
     }
-
     return (
       <div>
-      <div className="col-md-8 col-sm-2">
-        <div className="card">
-          <div className="content">
-            { this.props.linkMode ? <LinkModeBanner /> : null }
-            { this.props.selectLinkTypeModal ? <LinkRecord/> : null }
-            { pdsNodes }
+        <div className="col-md-8 col-sm-2">
+          <div className="card">
+            <div className="content">
+              {this.props.linkMode ? <LinkModeBanner /> : null}
+              {this.props.selectLinkTypeModal ? <LinkRecord /> : null}
+              {pdsNodes}
+            </div>
           </div>
         </div>
-        { this.props.children }
-      </div>
-      { this.props.activeLinks.length != 0 && !this.props.isFetching?
-        <LinkedRecords /> : null
-      }
+        {this.props.activeLinks.length !== 0 && !this.props.isFetching ?
+          <LinkedRecords /> : null
+        }
       </div>
     );
   }
 }
+
+RecordPanel.propTypes = {
+  dispatch: React.PropTypes.func,
+  subject: React.PropTypes.object,
+  protocol: React.PropTypes.object,
+  pds: React.PropTypes.object,
+  record: React.PropTypes.object,
+  activeRecord: React.PropTypes.object,
+  activeSubject: React.PropTypes.object,
+  activeLinks: React.PropTypes.array,
+  activeSubjectRecords: React.PropTypes.array,
+  selectedLabel: React.PropTypes.number,
+  linkMode: React.PropTypes.bool,
+  selectLinkTypeModal: React.PropTypes.bool,
+  isFetching: React.PropTypes.bool,
+};
 
 function mapStateToProps(state) {
   return {
@@ -71,8 +78,6 @@ function mapStateToProps(state) {
     record: {
       items: state.record.items,
     },
-    showInfoPanel: state.subject.showInfoPanel,
-    showActionPanel: state.subject.showActionPanel,
     activeRecord: state.record.activeRecord,
     activeSubject: state.subject.activeSubject,
     activeLinks: state.record.activeLinks,

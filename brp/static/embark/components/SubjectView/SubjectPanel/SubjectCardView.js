@@ -1,42 +1,44 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 // jscs:disable maximumLineLength
 import React from 'react';
-import { Link, History } from 'react-router';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import * as SubjectActions from '../../../actions/subject';
 import ExternalIDs from './ExternalIds';
 
-class SubjectCardView extends React.Component{
-
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const subject = this.props.subject.activeSubject;
-    const editUrl = this.props.path + '/edit';
-    return (
-      <div className="col-md-4 col-sm-6">
-        <div className="card">
-          <div className="more">
-          <Link to={editUrl} type="button" style={{ marginRight: '40%' }} className="btn btn-simple btn-icon pull-right" >
+const SubjectCardView = (props) => {
+  const subject = props.subject.activeSubject;
+  const editUrl = `${props.path}/edit`;
+  return (
+    <div className="col-md-4 col-sm-6">
+      <div className="card">
+        <div className="more">
+          <Link
+            to={editUrl}
+            type="button"
+            style={{ marginRight: '40%' }}
+            className="btn btn-simple btn-icon pull-right"
+          >
             <i className="ti-pencil"></i>
           </Link>
-          </div>
-          <div className="content">
-
-            <h6 className="category">{ subject.organization_name }</h6>
-            <h4 className="title">{ subject.first_name } { subject.last_name }</h4>
-
-            <p className="description">Org ID: { subject.organization_subject_id }</p>
-            <p className="description">Date of birth: { subject.dob }</p>
-            <ExternalIDs externalIds={subject.external_ids} />
-          </div>
+        </div>
+        <div className="content">
+          <h6 className="category">{subject.organization_name}</h6>
+          <h4 className="title">{subject.first_name} {subject.last_name}</h4>
+          <p className="description">Org ID: {subject.organization_subject_id}</p>
+          <p className="description">Date of birth: {subject.dob}</p>
+          <ExternalIDs externalIds={subject.external_ids} />
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+SubjectCardView.propTypes = {
+  protocol: React.PropTypes.object,
+  subject: React.PropTypes.object,
+  pds: React.PropTypes.object,
+  path: React.PropTypes.string,
+};
 
 function mapStateToProps(state) {
   return {
@@ -50,8 +52,6 @@ function mapStateToProps(state) {
     pds: {
       items: state.pds.items,
     },
-    showInfoPanel: state.subject.showInfoPanel,
-    showActionPanel: state.subject.showActionPanel,
   };
 }
 

@@ -1,4 +1,3 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
 import SelectField from 'material-ui/lib/select-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -11,8 +10,18 @@ import { connect } from 'react-redux';
 
 class LinkRecord extends React.Component {
 
-  validateModal() {
-    // Make sure type is selected
+  constructor(props) {
+    super(props);
+    this.onChange = this.onChange.bind(this);
+    this.handleLinkRecordClick = this.handleLinkRecordClick.bind(this);
+    this.handleRecordLabelSelect = this.handleRecordLabelSelect.bind(this);
+    this.handleNewRecordClick = this.handleNewRecordClick.bind(this);
+    this.handleCloseClick = this.handleCloseClick.bind(this);
+  }
+
+  onChange(e, index, value) {
+    const { dispatch } = this.props;
+    dispatch(RecordActions.setSelectedLinkType(value));
   }
 
   handleRecordLabelSelect(e, index, value) {
@@ -27,31 +36,30 @@ class LinkRecord extends React.Component {
 
   handleLinkRecordClick() {
     const { dispatch } = this.props;
-    const activeRecord = this.props.activeRecord
-    const secondaryRecord = this.props.pendingLinkedRecord
-    dispatch(RecordActions.createRecordLink(activeRecord, secondaryRecord))
+    const activeRecord = this.props.activeRecord;
+    const secondaryRecord = this.props.pendingLinkedRecord;
+    dispatch(RecordActions.createRecordLink(activeRecord, secondaryRecord));
   }
 
-  handleCloseClick(){
+  handleCloseClick() {
     const { dispatch } = this.props;
     dispatch(RecordActions.dismissLinkModal());
     dispatch(SubjectActions.setLinkMode(false));
   }
 
-  onChange(e, index, value) {
-    const { dispatch } = this.props;
-    dispatch(RecordActions.setSelectedLinkType(value));
-  };
+  validateModal() {
+    // Make sure type is selected
+  }
 
   render() {
     const primaryRecord = this.props.activeRecord;
     const secondaryRecord = this.props.pendingLinkedRecord;
     const modalStyle = {
-        left: '45%',
-        marginLeft: '-5em',
-        marginBottom: '3em',
-        position: 'fixed',
-        zIndex: '1000',
+      left: '45%',
+      marginLeft: '-5em',
+      marginBottom: '3em',
+      position: 'fixed',
+      zIndex: '1000',
     };
     const cardStyle = {
       padding: '15px',
@@ -59,41 +67,30 @@ class LinkRecord extends React.Component {
       backgroundColor: 'white',
     };
     const backdropStyle = {
-        position: 'fixed',
-        top: '0px',
-        left: '0px',
-        width: '100%',
-        height: '100%',
-        zIndex: 99,
-        display: 'block',
-        backgroundColor: 'rgba(0, 0, 0, 0.298039)',
-    }
-    var selectStyle = {
-      marginLeft: '10px',
+      position: 'fixed',
+      top: '0px',
+      left: '0px',
+      width: '100%',
+      height: '100%',
+      zIndex: 99,
+      display: 'block',
+      backgroundColor: 'rgba(0, 0, 0, 0.298039)',
     };
-
-    var buttonStyle = {
-      width:'auto',
-      marginTop:'20px',
-      marginLeft: '50%',
-    };
-
     const recordStyle = {
       padding: '5px',
-      margin:'15px',
+      margin: '15px',
       borderStyle: 'solid',
       borderWidth: '1px',
       borderColor: '#DDD',
-    }
+    };
     const linkErrorStyle = {
       padding: '5px',
-      margin:'15px',
-    }
-    const activePds = this.props.activeRecord.pds
-    const availableLinkTypes = this.props.availableLinkTypes[activePds]
-    var canLink = availableLinkTypes.length > 0 ? true : false
+      margin: '15px',
+    };
+    const activePds = this.props.activeRecord.pds;
+    const availableLinkTypes = this.props.availableLinkTypes[activePds];
+    const canLink = availableLinkTypes.length > 0;
     return (
-
       <section>
         <div style={backdropStyle}></div>
         <div className="col-sm-3 edit-label-modal" style={modalStyle}>
@@ -102,38 +99,51 @@ class LinkRecord extends React.Component {
             <div className="more">
             </div>
             <div className="content">
-              { canLink ?
+              {canLink ?
                 <div>
                   <div style={recordStyle}>
-                    <h6>{ primaryRecord ? <span>{primaryRecord.label_desc} ID: {primaryRecord.id}</span> : null }</h6>
+                    <h6>
+                      {primaryRecord ?
+                        <span>{primaryRecord.label_desc} ID: {primaryRecord.id}</span> :
+                        null}
+                    </h6>
                   </div>
-                  <SelectField onChange={this.onChange.bind(this)}
+                  <SelectField
+                    onChange={this.onChange}
                     value={this.props.selectedLinkType}
                     style={{ width: '100%' }}
                   >
-                    {
-                      availableLinkTypes.map(function(link, i){
-                        return <MenuItem key={i} value={link.id} primaryText={link.desc} />
-                      })
-                    }
+                    {availableLinkTypes.map((link, i) => (
+                      <MenuItem key={i} value={link.id} primaryText={link.desc} />
+                      ))}
                   </SelectField>
                   <div style={recordStyle}>
-                    <h6>{ secondaryRecord ? <span>{secondaryRecord.label_desc} ID: {secondaryRecord.id}</span> : null }</h6>
+                    <h6>
+                      {secondaryRecord ?
+                        <span>{secondaryRecord.label_desc} ID: {secondaryRecord.id}</span> :
+                        null
+                      }
+                    </h6>
                   </div>
-                  { this.props.linkError != null ? <div style={linkErrorStyle}>Error: {this.props.linkError}</div> : null }
-                  <RaisedButton style={{ width: '100%' }}
+                  {this.props.linkError != null ?
+                    <div style={linkErrorStyle}>Error: {this.props.linkError}</div> :
+                    null
+                  }
+                  <RaisedButton
+                    style={{ width: '100%' }}
                     labelColor={'#7AC29A'}
                     label="Link Records"
-                    onClick={this.handleLinkRecordClick.bind(this)}
+                    onClick={this.handleLinkRecordClick}
                   />
                 </div>
                 :
                 <h6> This record is not available for linking </h6>
               }
-              <RaisedButton style={{ width: '100%' }}
+              <RaisedButton
+                style={{ width: '100%' }}
                 labelColor={Colors.red400}
                 label="Cancel"
-                onClick={this.handleCloseClick.bind(this)}
+                onClick={this.handleCloseClick}
               />
             </div>
           </div>
@@ -143,6 +153,17 @@ class LinkRecord extends React.Component {
     );
   }
 }
+
+LinkRecord.propTypes = {
+  dispatch: React.PropTypes.func,
+  subject: React.PropTypes.object,
+  selectedLabel: React.PropTypes.object,
+  activeRecord: React.PropTypes.object,
+  pendingLinkedRecord: React.PropTypes.object,
+  selectedLinkType: React.PropTypes.number,
+  linkError: React.PropTypes.string,
+  availableLinkTypes: React.PropTypes.object,
+};
 
 function mapStateToProps(state) {
   return {
@@ -156,4 +177,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(LinkRecord)
+export default connect(mapStateToProps)(LinkRecord);

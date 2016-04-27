@@ -1,40 +1,28 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
-import { Link, History } from 'react-router';
-import { connect } from 'react-redux';
-import * as SubjectActions from '../../../actions/subject';
 
-class ExternalIDs extends React.Component {
-
-  constructor(props) {
-    super(props);
+const ExternalIDs = (props) => {
+  let nodes = null;
+  if (props.externalIds) {
+    nodes = props.externalIds.map((id, i) => (
+      <li key={i}>{id.label_desc}: {id.record_id}</li>
+    ), this);
   }
+  const idList = (
+    <ul className="externalIds">
+      {nodes}
+    </ul>
+  );
+  return (
+    <div>
+      <h6 className="category">External Identifiers</h6>
+      {idList}
+    </div>
+  );
+};
 
-  renderExternalIds() {
-    var nodes = null;
-    if (this.props.externalIds) {
-      nodes = this.props.externalIds.map(function (id, i) {
-        return (
-            <li key={i}>{ id.label_desc }: {id.record_id}</li>
-        );
-      }, this);
-    }
+ExternalIDs.propTypes = {
+  externalIds: React.PropTypes.array,
+};
 
-    return (
-      <ul className="externalIds">
-        { nodes }
-      </ul>
-    );
-  }
-
-  render() {
-    return (
-      <div>
-        <h6 className="category">External Identifiers</h6>
-        { this.renderExternalIds() }
-      </div>
-    );
-  }
-}
-
-export default connect()(ExternalIDs);
+export default ExternalIDs;
