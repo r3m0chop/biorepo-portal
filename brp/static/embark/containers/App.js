@@ -1,10 +1,7 @@
-// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 import React from 'react';
-import ProjectMenu from '../components/ProjectMenu';
 import NotificationSystem from 'react-notification-system';
 import Navbar from '../components/Navbar';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import * as ProtocolActions from '../actions/protocol';
 import * as NotificationActions from '../actions/notification';
 
@@ -12,12 +9,12 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this._notificationSystem = null;
+    this.notificationSystem = null;
   }
 
   componentDidMount() {
     const { dispatch } = this.props;
-    this._notificationSystem = this.refs.notificationSystem;
+    this.notificationSystem = this.refs.notificationSystem;
     if (!this.props.params.prot_id || !this.props.protocol.isFetching) {
       dispatch(ProtocolActions.fetchProtocols());
     }
@@ -30,46 +27,55 @@ class App extends React.Component {
   processNotifications() {
     // First check that the notification system is available
     const { dispatch } = this.props;
-    if (this._notificationSystem) {
+    if (this.notificationSystem) {
       // Always reset the notification systems state we are managing it through redux
-      this._notificationSystem.state.notifications = [];
+      this.notificationSystem.state.notifications = [];
 
       // Iterate over the notifications in your state
-      this.props.notifications.items.forEach(function (notification) {
+      this.props.notifications.items.forEach((notification) => {
         // Define callback to remove notification when done display
-        notification.onRemove = function (notification) {
-          dispatch(NotificationActions.removeNotification(notification));
+        /* eslint-disable no-param-reassign*/
+        notification.onRemove = (n) => {
+          dispatch(NotificationActions.removeNotification(n));
         };
-
+        /* eslint-enable no-param-reassign*/
         // Add notification to system state
-        this._notificationSystem.addNotification(notification);
+        this.notificationSystem.addNotification(notification);
       }, this);
     }
   }
 
-    render() {
-      var style = {
-        NotificationItem: { // Override the notification item
-          DefaultStyle: { // Applied to every notification, regardless of the notification level
-            margin: '52px 0px 2px 1px',
-          },
+  render() {
+    const style = {
+      NotificationItem: { // Override the notification item
+        DefaultStyle: { // Applied to every notification, regardless of the notification level
+          margin: '52px 0px 2px 1px',
         },
-      };
-      return (
-          <div>
-              <Navbar/>
-              <NotificationSystem style={style} ref="notificationSystem"/>
-              {this.props.children}
-          </div>
-      );
-    }
+      },
+    };
+    return (
+      <div>
+        <Navbar activeProtocolId={this.props.protocol.activeProtocolId} />
+        <NotificationSystem style={style} ref="notificationSystem" />
+        {this.props.children}
+      </div>
+    );
+  }
 }
 
-function mapStateToProps(state) {
+App.propTypes = {
+  dispatch: React.PropTypes.func,
+  protocol: React.PropTypes.object,
+  notifications: React.PropTypes.object,
+  params: React.PropTypes.object,
+  children: React.PropTypes.object,
+};
 
+function mapStateToProps(state) {
   return {
     protocol: {
       items: state.protocol.items,
+      activeProtocolId: state.protocol.activeProtocolId,
       isFetching: state.protocol.isFetching,
     },
     notifications: {
