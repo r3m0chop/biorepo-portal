@@ -27,6 +27,7 @@ class DynamicChoiceField(forms.ChoiceField):
 class DatePickerInput(forms.DateInput):
 
     def render(self, name, value, attrs=None):
+        attrs.update({'class':'field_input_date'})
         html = super(DatePickerInput, self).render(name, value, attrs)
         html += """<input class="btn_today" id="todaybutton" type="button" value="Today" />"""
         html += """<br/><span style="color:red" class="datespan" id="datespan_dob"></span>"""
