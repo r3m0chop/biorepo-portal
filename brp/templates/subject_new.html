@@ -1,6 +1,128 @@
 {% extends "subject_base.html" %}
+
+{% block script %}
+{{ block.super }}
+
+$(function() {
+  $( "#id_dob" ).datepicker({
+          format: 'yyyy-mm-dd'
+  });
+});
+
+$(function() {
+  $( "#id_dob" ).datepicker()
+      .on('changeDate', function(ev){
+          $(this).datepicker('hide');
+          // and clear out any existing warnings:
+          var datespanEl = $("#datespan_dob")[0];
+          datespanEl.innerHTML = "";
+  });
+});
+
+$(function () {
+  $("#todaybutton").on('click', function () {
+      var textField = $("#id_dob")[0];
+      var today = new Date();
+      var monthstr = today.getMonth() + 1;
+      if (monthstr < 10) {
+          monthstr = '0' + monthstr;
+      }
+      var datestr = today.getDate();
+      if (datestr < 10) {
+          datestr = '0' + datestr;
+      }
+      var todaystr = today.getFullYear() + "-" + monthstr + "-" + datestr;
+      textField.value = todaystr;
+
+      // and clear out any existing warnings:
+      var datespanEl = $("#datespan_dob")[0];
+      datespanEl.innerHTML = "";
+  });
+});
+
+function postTimeoutDateHider(preThis) {
+    // When we have have tabbed out of an INPUT field with class=field_input_date,
+    // then the setTimeout will call this function with the previously active $(this).
+    // If the newly active element is an INPUT field not of the field_input_date class,
+    // (and noting that field_input_dates will not be direct neighbors due to a today_button with class=btn_today)
+    // then go ahead and hide the previous element's datepicker.
+    // Clicking anywhere else (e.g., element of type BODY) will automatically
+    // invoke the datepicker's own 'hide' functionality.
+
+    var active = document.activeElement;
+    if (active.tagName == 'INPUT' && active.getAttribute('class') !== 'field_input_date') {
+        preThis.datepicker('hide');
+    }
+}
+
+$(function () {
+  $("#id_dob").on('blur', function () {
+      // valiDate() function:
+
+      var parts, day, month, year;
+      var dateField = $(this)[0];
+      var dateStr = dateField.value;
+
+      // clear out any existing warnings:
+      var datespanEl = $("#datespan_dob")[0];
+      datespanEl.innerHTML = "";
+      // and the date-picker:
+      setTimeout(postTimeoutDateHider.bind(null, $(this)), 1);
+
+      if (dateStr == "") {
+          return true;
+      }
+
+      // Part 1: check for the expected format without validating the #s:
+      if(!/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(dateStr)) {
+         // format is not as expected, but is it a variation we can auto-fix?
+         if(/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(dateStr)) {
+             // date-delimiter '/' used instead of '-', auto-fix:
+             dateStr = dateStr.replace(/\//g, '-');
+             dateField.value = dateStr;
+         }
+         else if (/^\d{1,2}[-\/]\d{1,2}[-\/]\d{4}$/.test(dateStr)){
+             // MM[-/]DD[-/]YYYY possibly used instead, auto-fix:
+             parts   = dateStr.split(/[-\/]/);
+             dateStr = parts[2] + "-" + parts[0] + "-" + parts[1];
+             dateField.value = dateStr;
+         }
+         else {
+             datespanEl.innerHTML = "ERROR: Expecting YYYY-MM-DD date format";
+             return false;
+         }
+      }
+
+      // Part 2: now that all seems to be YYYY-MM-DD format, validate MM&DD #s:
+      parts   = dateStr.split(/-/);
+      year    = parseInt(parts[0], 10);
+      month   = parseInt(parts[1], 10);
+      day     = parseInt(parts[2], 10);
+
+      if(month <= 0 || month > 12) {
+          datespanEl.innerHTML = "ERROR: month does not validate for YYYY-MM-DD";
+          return false;
+      }
+
+      var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+      // Adjust for leap years
+      if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) {
+          monthLength[1] = 29;
+      }
+
+      if (day <= 0 || day > monthLength[month - 1]) {
+          datespanEl.innerHTML = "ERROR: day of month does not validate for YYYY-MM-DD";
+          return false;
+      }
+
+      return true;
+  });
+});
+{% endblock %}
+
 {% block head_content %}
-<title>Biorepository New Subject</title> 
+<title>Biorepository New Subject</title>
 {% endblock %}
 
 {% block topbar_block %}
